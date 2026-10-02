@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Quiz</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="header-inner">
+
+            <div class="logo">
+                <div class="logo-ball"></div>
+                <span>Pokémon Quiz</span>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">Found</div>
+                    <div class="stat-value" id="foundStat">0 / 0</div>
+                </div>
+
+                <div class="stat">
+                    <div class="stat-label">Time</div>
+                    <div class="stat-value" id="timer">00:00</div>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <section class="controls">
+        <div class="controls-panel">
+            <div class="control-row">
+                <div class="control-group">
+                    <span class="control-label">Mode:</span>
+
+                    <button class="mode-btn active" data-mode="all" id="allModeBtn">
+                        All Pokémon
+                    </button>
+                </div>
+
+                <div class="control-group" id="generationControl" hidden>
+                    <span class="control-label">Generation:</span>
+
+                    <select id="generationSelect">
+                        <option value="">All</option>
+                        <option value="1">Gen 1</option>
+                        <option value="2">Gen 2</option>
+                        <option value="3">Gen 3</option>
+                        <option value="4">Gen 4</option>
+                        <option value="5">Gen 5</option>
+                        <option value="6">Gen 6</option>
+                        <option value="7">Gen 7</option>
+                        <option value="8">Gen 8</option>
+                        <option value="9">Gen 9</option>
+                    </select>
+                </div>
+
+                <div class="control-group" id="typeControl" hidden>
+                    <span class="control-label">Type:</span>
+
+                    <select id="typeSelect">
+                        <option value="">All</option>
+                        <option value="normal">Normal</option>
+                        <option value="fire">Fire</option>
+                        <option value="water">Water</option>
+                        <option value="electric">Electric</option>
+                        <option value="grass">Grass</option>
+                        <option value="ice">Ice</option>
+                        <option value="fighting">Fighting</option>
+                        <option value="poison">Poison</option>
+                        <option value="ground">Ground</option>
+                        <option value="flying">Flying</option>
+                        <option value="psychic">Psychic</option>
+                        <option value="bug">Bug</option>
+                        <option value="rock">Rock</option>
+                        <option value="ghost">Ghost</option>
+                        <option value="dragon">Dragon</option>
+                        <option value="dark">Dark</option>
+                        <option value="steel">Steel</option>
+                        <option value="fairy">Fairy</option>
+                    </select>
+                </div>
+
+                <button class="primary" id="newGameBtn">
+                    New Game
+                </button>
+
+                <button class="danger" id="giveUpBtn">
+                    Give Up
+                </button>
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox">
+                    <input type="checkbox" id="regionalToggle" checked>
+                    Regional Forms
+                </label>
+
+                <label class="checkbox">
+                    <input type="checkbox" id="gimmickToggle" checked>
+                    Gimmick Forms
+                </label>
+
+                <label class="checkbox">
+                    <input type="checkbox" id="otherFormsToggle" checked>
+                    Other Forms
+                </label>
+
+                <div id="pending-settings-message" class="pending-settings-message" hidden>
+                    Alterações pendentes — clique em New Game para aplicar.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="input-area">
+        <form class="answer-form" id="answerForm">
+            <input id="answerInput" class="answer-input" type="text" autocomplete="off" autocapitalize="none"
+                spellcheck="false" placeholder="Name a Pokémon..." disabled>
+
+            <button class="answer-button primary" type="submit" id="answerButton" disabled>
+                Enter
+            </button>
+        </form>
+
+        <div class="message" id="message">
+            Loading Pokémon data...
+        </div>
+    </section>
+
+    <div class="loading" id="loading">
+        <h2>Loading Pokémon database</h2>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="loading-text" id="loadingText">
+            Preparing...
+        </div>
+    </div>
+
+    <div id="board"></div>
+
+    <div id="completion"></div>
+
+    <script type="module" src="scripts/main.js"></script>
+
+</body>
+
+</html>
