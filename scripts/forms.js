@@ -189,6 +189,7 @@ function getCategory(entry) {
 export {
     classifyForm,
     formRegion,
+    formatFormName,
     displayName,
     getFormAnswer,
     shouldIncludeEntry,

@@ -9,6 +9,7 @@ import {
 import {
     shouldIncludeEntry,
     classifyForm,
+    formatFormName
 } from "./forms.js";
 
 import {
@@ -193,6 +194,38 @@ function buildQuizEntries() {
     }
 
     return Array.from(unique.values());
+}
+
+function findDatabaseMatches(answer) {
+    const normalized = normalizeName(answer);
+
+    if (!normalized) {
+        return [];
+    }
+
+    const entries = state.database?.entries || [];
+
+    return entries.filter(entry => {
+        const names = new Set();
+
+        names.add(normalizeName(formatFormName(entry)));
+
+        names.add(normalizeName(baseSpeciesName(entry)));
+
+        return names.has(normalized);
+    });
+}
+
+function findQuizEntries(answer) {
+    const normalized = normalizeName(answer);
+
+    if (!normalized) {
+        return [];
+    }
+
+    return state.gameEntries.filter(
+        entry => entry.answer === normalized
+    );
 }
 
 function findMatchingEntries(answer) {
@@ -427,6 +460,8 @@ function updateEntrySectionCount(entry) {
 
 export {
     buildQuizEntries,
+    findDatabaseMatches,
+    findQuizEntries,
     findMatchingEntries,
     getSections,
     updateEntrySectionCount

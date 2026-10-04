@@ -13,6 +13,8 @@ import {
 } from "./dom.js";
 import {
     buildQuizEntries,
+    findDatabaseMatches,
+    findQuizEntries,
     findMatchingEntries,
     updateEntrySectionCount,
 } from "./quiz.js";
@@ -367,23 +369,36 @@ function loadSavedGameIntoState(saved) {
 }
 
 function submitAnswer() {
-
-    const raw =
-        answerInput.value.trim();
+    const raw = answerInput.value.trim();
 
     if (!raw) {
         return;
     }
 
-    const matches =
-        findMatchingEntries(raw);
+    const databaseMatches = findDatabaseMatches(raw);
+
+    if (databaseMatches.length === 0) {
+        setMessage(`No match for "${raw}".`, `error`);
+
+        answerInput.select();
+
+        return;
+    }
+
+    const quizEntries = findQuizEntries(raw);
+
+    if (quizEntries.length === 0) {
+        setMessage("This Pokémon is not part of this quiz.", "error");
+
+        answerInput.select();
+
+        return;
+    }
+
+    const matches = findMatchingEntries(raw);
 
     if (matches.length === 0) {
-
-        setMessage(
-            `No match for "${raw}".`,
-            "error"
-        );
+        setMessage("This Pokémon has already been guessed.", "error");
 
         answerInput.select();
 
@@ -395,45 +410,35 @@ function submitAnswer() {
     }
 
     for (const entry of matches) {
-
         state.found.add(entry.id);
+
         entry.found = true;
 
         updateEntrySectionCount(entry);
 
-        const slot =
-            board.querySelector(
-                `[data-entry-id="${CSS.escape(entry.id)}"]`
-            );
+        const slot = board.querySelector(`[data-entry-id="${CSS.escape(entry.id)}"]`);
 
         if (slot) {
             revealSlot(slot, entry);
         }
     }
 
-    const names =
-        matches.map(
-            entry => entry.displayName
-        );
+    const names = matches.map(entry => entry.displayName);
 
-    setMessage(
-        names.join(" • "),
-        "success"
-    );
+    setMessage(names.join(" • "), "success");
 
     updateStats();
     saveGame();
 
     answerInput.value = "";
+
     answerInput.focus();
 
-    if (
-        state.found.size >=
-        state.gameEntries.length
-    ) {
+    if (state.found.size >= state.gameEntries.length) {
         stopTimer();
         showCompletion();
     }
+
 }
 
 function showCompletion() {
