@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 # Pokémon Quiz
 
 **Projeto pessoal · AI-Assisted Development / Vibe Coding**  
@@ -121,4 +119,3 @@ A estrutura principal do jogo já está funcional (carregamento, filtros, respos
 ## Aviso de Propriedade Intelectual
 
 Pokémon, seus nomes, personagens, imagens e demais propriedades relacionadas pertencem aos seus respectivos detentores de direitos. Este projeto é **não oficial**, independente e sem afiliação com Nintendo, The Pokémon Company ou Game Freak. Criado exclusivamente para fins de estudo, experimentação técnica e entretenimento pessoal.
->>>>>>> 71fb2a165b7964e801ebae06c0dbceb864118c4d
