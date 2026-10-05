@@ -10,7 +10,6 @@ import {regionalDisplayPrefixes} from "./config.js";
 
 
 function classifyForm(entry) {
-
     const name = entry.name;
 
     if (entry.default) {
@@ -29,19 +28,24 @@ function classifyForm(entry) {
         return "gmax";
     }
 
-    for (const region of regionalNames) {
-        if (name.endsWith("-" + region)) {
-            return "regional";
-        }
+    // Darmanitan Galar Zen é uma forma alternativa,
+    // não uma forma regional separada.
+    if (name === "darmanitan-galar-zen") {
+        return "other";
+    }
+
+    if (formRegion(name)) {
+        return "regional";
     }
 
     return "other";
 }
 
 function formRegion(name) {
+    const parts = name.split("-");
 
     for (const region of regionalNames) {
-        if (name.endsWith("-" + region)) {
+        if (parts.includes(region)) {
             return region;
         }
     }
@@ -160,6 +164,10 @@ const excludedForms = new Set([
 ]);
 
 function shouldIncludeEntry(entry) {
+    if (entry.name.includes("-totem")) {
+        return false;
+    }
+
     return !excludedForms.has(entry.name);
 }
 
