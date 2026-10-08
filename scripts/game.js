@@ -6,6 +6,8 @@ import {
     regionalToggle,
     gimmickToggle,
     otherFormsToggle,
+    shinyToggle,
+    shadowToggle,
     allModeBtn,
     generationSelect,
     typeSelect,
@@ -28,7 +30,9 @@ import {
     getElapsed,
     setMessage
 } from "./utils.js";
-import {SAVE_KEY} from "./config.js";
+import { SAVE_KEY } from "./config.js";
+import { getFormAnswer } from "./forms.js";
+import { normalizeName } from "./utils.js";
 
 
 function startTimer() {
@@ -60,6 +64,66 @@ function stopTimer() {
     }
 }
 
+function updatePauseButton() {
+    const canPause =
+        state.gameEntries.length > 0 &&
+        state.found.size < state.gameEntries.length;
+
+    pauseBtn.disabled = !canPause;
+    pauseBtn.textContent = state.paused ? "Resume" : "Pause";
+}
+
+function pauseTimer() {
+    if (
+        state.paused ||
+        state.gameEntries.length === 0 ||
+        !state.startTime ||
+        state.found.size >= state.gameEntries.length
+    ) {
+        return;
+    }
+
+    state.pausedElapsed = getElapsed();
+    state.paused = true;
+
+    stopTimer();
+
+    answerInput.disabled = true;
+    answerButton.disabled = true;
+
+    updatePauseButton();
+    saveGame();
+}
+
+function resumeTimer() {
+    if (!state.paused) {
+        return;
+    }
+
+    state.startTime =
+        Date.now() - state.pausedElapsed * 1000;
+
+    state.paused = false;
+
+    startTimer();
+
+    answerInput.disabled = false;
+    answerButton.disabled = false;
+
+    updatePauseButton();
+    saveGame();
+
+    answerInput.focus();
+}
+
+function togglePause() {
+    if (state.paused) {
+        resumeTimer();
+    } else {
+        pauseTimer();
+    }
+}
+
 function saveGame() {
 
     try {
@@ -72,10 +136,14 @@ function saveGame() {
             regional: state.regional,
             gimmick: state.gimmick,
             otherForms: state.otherForms,
+            shiny: state.shiny,
+            shadow: state.shadow,
 
             found: Array.from(state.found),
 
             startTime: state.startTime,
+            paused: state.paused,
+            pausedElapsed: state.pausedElapsed,
 
             savedAt: Date.now()
         };
@@ -126,6 +194,24 @@ function clearSavedGame() {
         console.warn(
             "Could not clear saved game:",
             error
+        );
+    }
+}
+
+function applyFormSettingsImmediately() {
+
+    for (const entry of state.gameEntries) {
+        const databaseEntry =
+            state.database?.entries?.find(
+                pokemon => pokemon.name === entry.apiName
+            );
+
+        if (!databaseEntry) {
+            continue;
+        }
+
+        entry.answer = normalizeName(
+            getFormAnswer(databaseEntry)
         );
     }
 }
@@ -183,6 +269,9 @@ function createNewGame(clearSave = true) {
     stopTimer();
     timer.textContent = "00:00";
 
+    state.paused = false;
+    state.pausedElapsed = 0;
+
     applyPendingSettings();
 
     updatePendingSettingsMessage();
@@ -228,6 +317,7 @@ function createNewGame(clearSave = true) {
     }
 
     saveGame();
+    updatePauseButton();
 }
 
 function loadSavedGameIntoState(saved) {
@@ -271,6 +361,19 @@ function loadSavedGameIntoState(saved) {
         otherFormsToggle.checked =
             saved.otherForms;
     }
+
+    if (typeof saved.shiny === "boolean") {
+        state.shiny = saved.shiny;
+        shinyToggle.checked = saved.shiny;
+    }
+
+    if (typeof saved.shadow === "boolean") {
+        state.shadow = saved.shadow;
+        shadowToggle.checked = saved.shadow;
+    }
+
+    state.paused = saved.paused ?? false;
+    state.pausedElapsed = saved.pausedElapsed ?? 0;
 
     /*
         Rebuild the board using the saved settings.
@@ -325,9 +428,9 @@ function loadSavedGameIntoState(saved) {
     updateModeControls();
 
     generationSelect.value =
-    state.generation !== null
-        ? String(state.generation)
-        : "";
+        state.generation !== null
+            ? String(state.generation)
+            : "";
 
     typeSelect.value =
         state.type ?? "";
@@ -337,6 +440,8 @@ function loadSavedGameIntoState(saved) {
     gimmickToggle.checked = state.gimmick;
 
     otherFormsToggle.checked = state.otherForms;
+    shinyToggle.checked = state.shiny;
+    shadowToggle.checked = state.shadow;
 
     answerInput.disabled =
         state.gameEntries.length === 0 ||
@@ -369,6 +474,10 @@ function loadSavedGameIntoState(saved) {
 }
 
 function submitAnswer() {
+    if (state.paused) {
+        return;
+    }
+
     const raw = answerInput.value.trim();
 
     if (!raw) {
@@ -407,6 +516,7 @@ function submitAnswer() {
 
     if (state.found.size === 0) {
         startTimer();
+        updatePauseButton();
     }
 
     for (const entry of matches) {
@@ -558,13 +668,14 @@ function setMode(mode) {
     updatePendingSettingsMessage();
 }
 
-export{
+export {
     startTimer,
     stopTimer,
     saveGame,
     readSavedGame,
     clearSavedGame,
     applyPendingSettings,
+    applyFormSettingsImmediately,
     updateModeControls,
     updatePendingSettingsMessage,
     resetFoundState,
@@ -574,4 +685,8 @@ export{
     showCompletion,
     giveUp,
     setMode,
+    updatePauseButton,
+    pauseTimer,
+    resumeTimer,
+    togglePause
 };

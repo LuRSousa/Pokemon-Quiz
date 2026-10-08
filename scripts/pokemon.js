@@ -83,9 +83,15 @@ function makeQuizEntry(
             apiEntry.name === "tatsugiri-stretchy-mega"
         );
 
+    const isMiniorActive =
+        apiEntry.name.startsWith("minior-") &&
+        !apiEntry.name.endsWith("-meteor");
+
     const entryId = isMegaTatsugiri
         ? `tatsugiri-mega-${sectionGeneration}-${answer}`
-        : `${apiEntry.id}-${category}-${sectionGeneration}-${answer}`;
+        : isMiniorActive
+            ? `minior-active-${sectionGeneration}`
+            : `${apiEntry.id}-${category}-${sectionGeneration}-${answer}`;
 
     return {
         id: entryId,
@@ -94,6 +100,7 @@ function makeQuizEntry(
         displayName: displayName(apiEntry),
         answer: normalizeName(answer),
         sprite: apiEntry.sprite,
+        spriteShiny: apiEntry.spriteShiny,
         generation: sectionGeneration,
         region: getEntryRegion(apiEntry),
         regionalDex: apiEntry.regionalDex,

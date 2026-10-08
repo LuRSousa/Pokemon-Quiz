@@ -11,11 +11,14 @@ const message = $("message");
 const pendingSettingsMessage = $("pending-settings-message");
 const foundStat = $("foundStat");
 const timer = $("timer");
+const pauseBtn = $("pauseBtn");
 const completion = $("completion");
 
 const regionalToggle = $("regionalToggle");
 const gimmickToggle = $("gimmickToggle");
 const otherFormsToggle = $("otherFormsToggle");
+const shinyToggle = $("shinyToggle");
+const shadowToggle = $("shadowToggle");
 
 const allModeBtn = $("allModeBtn");
 const generationSelect = $("generationSelect");
@@ -24,7 +27,7 @@ const typeSelect = $("typeSelect");
 const newGameBtn = $("newGameBtn");
 const giveUpBtn = $("giveUpBtn");
 
-export{
+export {
     board,
     loading,
     loadingText,
@@ -40,6 +43,9 @@ export{
     regionalToggle,
     gimmickToggle,
     otherFormsToggle,
+    shinyToggle,
+    shadowToggle,
+    pauseBtn,
     allModeBtn,
     generationSelect,
     typeSelect,

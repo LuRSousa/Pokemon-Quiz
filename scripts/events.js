@@ -8,16 +8,23 @@ import {
     regionalToggle,
     gimmickToggle,
     otherFormsToggle,
+    shinyToggle,
+    shadowToggle,
     newGameBtn,
     giveUpBtn,
+    pauseBtn,
 } from "./dom.js";
 import {
     createNewGame,
+    applyFormSettingsImmediately,
     giveUp,
+    togglePause,
     submitAnswer,
+    saveGame,
     updatePendingSettingsMessage,
     updateModeControls
 } from "./game.js";
+import { renderBoard } from "./board.js";
 
 allModeBtn.addEventListener(
     "click",
@@ -36,6 +43,10 @@ allModeBtn.addEventListener(
 answerForm.addEventListener("submit", event => {
     event.preventDefault();
     submitAnswer();
+});
+
+pauseBtn.addEventListener("click", () => {
+    togglePause();
 });
 
 generationSelect.addEventListener(
@@ -79,24 +90,51 @@ typeSelect.addEventListener(
 regionalToggle.addEventListener(
     "change",
     () => {
-        state.pendingRegional = regionalToggle.checked;
-        updatePendingSettingsMessage();
+        state.regional = regionalToggle.checked;
+        state.pendingRegional = state.regional;
+        applyFormSettingsImmediately();
+        renderBoard();
+        saveGame();
     }
 );
 
 gimmickToggle.addEventListener(
     "change",
     () => {
-        state.pendingGimmick = gimmickToggle.checked;
-        updatePendingSettingsMessage();
+        state.gimmick = gimmickToggle.checked;
+        state.pendingGimmick = state.gimmick;
+        applyFormSettingsImmediately();
+        renderBoard();
+        saveGame();
     }
 );
 
 otherFormsToggle.addEventListener(
     "change",
     () => {
-        state.pendingOtherForms = otherFormsToggle.checked;
-        updatePendingSettingsMessage();
+        state.otherForms = otherFormsToggle.checked;
+        state.pendingOtherForms = state.otherForms;
+        applyFormSettingsImmediately();
+        renderBoard();
+        saveGame();
+    }
+);
+
+shinyToggle.addEventListener(
+    "change",
+    () => {
+        state.shiny = shinyToggle.checked;
+        renderBoard();
+        saveGame();
+    }
+);
+
+shadowToggle.addEventListener(
+    "change",
+    () => {
+        state.shadow = shadowToggle.checked;
+        renderBoard();
+        saveGame();
     }
 );
 

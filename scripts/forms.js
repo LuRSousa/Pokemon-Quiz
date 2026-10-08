@@ -1,12 +1,12 @@
-import {regionalNames} from "./config.js";
+import { regionalNames } from "./config.js";
 
-import {prettyName} from "./utils.js";
+import { prettyName } from "./utils.js";
 
-import {baseSpeciesName} from "./pokemon.js";
+import { baseSpeciesName } from "./pokemon.js";
 
-import {state} from "./state.js";
+import { state } from "./state.js";
 
-import {regionalDisplayPrefixes} from "./config.js";
+import { regionalDisplayPrefixes } from "./config.js";
 
 
 function classifyForm(entry) {
@@ -95,6 +95,10 @@ function formatFormName(entry) {
         return `Gigantamax ${prettyName(baseSpeciesName(entry))}`;
     }
 
+    if (entry.default && name.startsWith("minior-")) {
+        return "Minior";
+    }
+
     if (name === "zygarde-10") {
         return "Zygarde 10%";
     }
@@ -105,6 +109,13 @@ function formatFormName(entry) {
 
     if (name === "zygarde-complete") {
         return "Zygarde Complete";
+    }
+
+    if (
+        name.startsWith("minior-") &&
+        !name.endsWith("-meteor")
+    ) {
+        return "Minior Active";
     }
 
     return prettyName(name);
@@ -164,11 +175,41 @@ const excludedForms = new Set([
 ]);
 
 function shouldIncludeEntry(entry) {
-    if (entry.name.includes("-totem")) {
+    const name = entry.name;
+
+    if (name.includes("-totem")) {
         return false;
     }
 
-    return !excludedForms.has(entry.name);
+    // Pikachu: excluir variações de roupa/costume
+    if (name.startsWith("pikachu-") && name !== "pikachu-gmax") {
+        return false;
+    }
+
+    // Eevee: excluir Let's Go Eevee
+    if (name === "eevee-starter") {
+        return false;
+    }
+
+    // Koraidon e Miraidon: excluir formas alternativas
+    if (
+        name.startsWith("koraidon-") ||
+        name.startsWith("miraidon-")
+    ) {
+        return false;
+    }
+
+    // Minior: as formas Meteor alternativas são representadas
+    // pelo Minior padrão, mas a forma default precisa permanecer.
+    if (
+        name.startsWith("minior-") &&
+        name.endsWith("-meteor") &&
+        !entry.default
+    ) {
+        return false;
+    }
+
+    return !excludedForms.has(name);
 }
 
 function getCategory(entry) {

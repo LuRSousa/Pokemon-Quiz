@@ -242,6 +242,10 @@ function findMatchingEntries(answer) {
     );
 }
 
+function getNationalDexNumber(entry) {
+    return entry.regionalDex?.national ?? Infinity;
+}
+
 function getRegionalDexNumber(entry, region) {
     const dex = entry.regionalDex;
 
@@ -251,7 +255,7 @@ function getRegionalDexNumber(entry, region) {
         kanto: ["kanto"],
         johto: ["updated-johto", "original-johto"],
         hoenn: ["hoenn"],
-        sinnoh: ["sinnoh"],
+        sinnoh: ["original-sinnoh"],
         unova: ["updated-unova", "original-unova"],
         kalos: ["kalos-central", "kalos-coastal", "kalos-mountain"],
         alola: ["updated-alola", "original-alola"],
@@ -273,19 +277,16 @@ function getRegionalDexNumber(entry, region) {
 }
 
 function compareRegionalEntries(a, b, region) {
-    const dexA =
-        getRegionalDexNumber(a, region);
-
-    const dexB =
-        getRegionalDexNumber(b, region);
+    const dexA = getNationalDexNumber(a);
+    const dexB = getNationalDexNumber(b);
 
     if (dexA !== dexB) {
         return dexA - dexB;
     }
 
     // Quando a forma normal e uma forma regional
-    // possuem o mesmo número na Pokédex, a forma
-    // normal aparece primeiro.
+    // possuem o mesmo Pokémon na National Dex,
+    // a forma normal aparece primeiro.
     if (a.category !== b.category) {
         const order = {
             pokemon: 0,

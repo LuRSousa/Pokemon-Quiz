@@ -40,7 +40,7 @@ async function loadDatabase() {
 
     if (
         cached &&
-        cached.version === 4 &&
+        cached.version === 5 &&
         cached.entries?.length
     ) {
         loadingText.textContent =
@@ -349,7 +349,7 @@ async function loadDatabase() {
 
         const metadata =
             defaultForm &&
-            formMetadata.has(defaultForm.name)
+                formMetadata.has(defaultForm.name)
                 ? formMetadata.get(
                     defaultForm.name
                 )
@@ -377,6 +377,10 @@ async function loadDatabase() {
             sprite:
                 pokemon.sprites
                     ?.front_default || null,
+
+            spriteShiny:
+                pokemon.sprites
+                    ?.front_shiny || null,
 
             generation:
                 generationForId(
@@ -407,7 +411,7 @@ async function loadDatabase() {
     );
 
     const database = {
-        version: 4,
+        version: 5,
         created: Date.now(),
         entries
     };

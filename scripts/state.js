@@ -10,6 +10,8 @@ const state = {
     regional: true,
     gimmick: true,
     otherForms: true,
+    shiny: false,
+    shadow: false,
 
     // Configuração selecionada na interface,
     // mas ainda não aplicada ao jogo
@@ -21,7 +23,9 @@ const state = {
     pendingOtherForms: true,
 
     startTime: null,
-    timerId: null
+    timerId: null,
+    paused: false,
+    pausedElapsed: 0
 };
 
 export {

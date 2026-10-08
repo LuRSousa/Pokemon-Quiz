@@ -27,9 +27,24 @@ function createSlot(entry) {
     */
     if (state.found.has(entry.id)) {
         revealSlot(slot, entry);
+    } else if (state.shadow && entry.sprite) {
+        showShadowSlot(slot, entry);
     }
 
     return slot;
+}
+
+function showShadowSlot(slot, entry) {
+
+    const image = document.createElement("img");
+
+    image.src = entry.sprite;
+    image.alt = "";
+    image.loading = "lazy";
+    image.classList.add("shadow-sprite");
+
+    slot.innerHTML = "";
+    slot.appendChild(image);
 }
 
 function revealSlot(slot, entry) {
@@ -43,7 +58,10 @@ function revealSlot(slot, entry) {
 
     const image = document.createElement("img");
 
-    image.src = entry.sprite || "";
+    image.src =
+        state.shiny && entry.spriteShiny
+            ? entry.spriteShiny
+            : entry.sprite || "";
     image.alt = entry.displayName;
     image.loading = "lazy";
 
@@ -219,6 +237,17 @@ function createSectionElement(section) {
         container.classList.add("special-section");
     }
 
+    const found = section.entries.filter(
+        entry => state.found.has(entry.id)
+    ).length;
+
+    if (
+        section.entries.length > 0 &&
+        found === section.entries.length
+    ) {
+        container.classList.add("section-complete");
+    }
+
     const title = document.createElement("div");
     title.className = "generation-title";
 
@@ -234,10 +263,6 @@ function createSectionElement(section) {
 
     count.dataset.sectionId =
         section.id || section.key || section.title;
-
-    const found = section.entries.filter(
-        entry => state.found.has(entry.id)
-    ).length;
 
     count.textContent =
         `${found} / ${section.entries.length}`;
@@ -280,8 +305,9 @@ window.addEventListener(
     updateResponsiveBoard
 );
 
-export{
+export {
     createSlot,
+    showShadowSlot,
     revealSlot,
     renderBoard,
     updateStats
