@@ -12,7 +12,6 @@ const pendingSettingsMessage = $("pending-settings-message");
 const foundStat = $("foundStat");
 const timer = $("timer");
 const pauseBtn = $("pauseBtn");
-const completion = $("completion");
 
 const regionalToggle = $("regionalToggle");
 const gimmickToggle = $("gimmickToggle");
@@ -39,7 +38,6 @@ export {
     pendingSettingsMessage,
     foundStat,
     timer,
-    completion,
     regionalToggle,
     gimmickToggle,
     otherFormsToggle,

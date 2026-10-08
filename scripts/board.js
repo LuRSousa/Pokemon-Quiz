@@ -1,8 +1,7 @@
 import { state } from "./state.js";
 import {
     board,
-    foundStat,
-    completion
+    foundStat
 } from "./dom.js";
 import { getSections } from "./quiz.js";
 
@@ -233,6 +232,9 @@ function createSectionElement(section) {
     const container = document.createElement("section");
     container.className = "generation";
 
+    container.dataset.sectionKey =
+    section.id || section.key || section.title;
+
     if (section.special) {
         container.classList.add("special-section");
     }
@@ -283,6 +285,37 @@ function createSectionElement(section) {
     return container;
 }
 
+function updateSectionComplete(entry) {
+    const sections = getSections();
+
+    const section = sections.find(section =>
+        section.entries.some(item => item.id === entry.id)
+    );
+
+    if (!section) return;
+
+    const sectionId =
+        section.id ||
+        section.key ||
+        section.title;
+
+    const container = board.querySelector(
+        `[data-section-key="${CSS.escape(sectionId)}"]`
+    );
+
+    if (!container) return;
+
+    const found = section.entries.filter(
+        item => state.found.has(item.id)
+    ).length;
+
+    container.classList.toggle(
+        "section-complete",
+        section.entries.length > 0 &&
+        found === section.entries.length
+    );
+}
+
 function updateStats() {
 
     const total = state.gameEntries.length;
@@ -292,12 +325,6 @@ function updateStats() {
     ).length;
 
     foundStat.textContent = `${found} / ${total}`;
-
-    if (total > 0 && found >= total) {
-        showCompletion();
-    } else {
-        completion.hidden = true;
-    }
 }
 
 window.addEventListener(
@@ -310,5 +337,6 @@ export {
     showShadowSlot,
     revealSlot,
     renderBoard,
+    updateSectionComplete,
     updateStats
 };

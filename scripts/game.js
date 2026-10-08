@@ -2,7 +2,6 @@ import { state } from "./state.js";
 import {
     answerInput,
     timer,
-    completion,
     regionalToggle,
     gimmickToggle,
     otherFormsToggle,
@@ -23,7 +22,8 @@ import {
 import {
     renderBoard,
     updateStats,
-    revealSlot
+    revealSlot,
+    updateSectionComplete
 } from "./board.js";
 import {
     formatTime,
@@ -290,8 +290,6 @@ function createNewGame(clearSave = true) {
     renderBoard();
     updateStats();
 
-    completion.hidden = true;
-
     answerInput.disabled =
         state.gameEntries.length === 0;
 
@@ -467,7 +465,6 @@ function loadSavedGameIntoState(saved) {
         state.gameEntries.length > 0
     ) {
         stopTimer();
-        showCompletion();
     }
 
     return true;
@@ -525,6 +522,7 @@ function submitAnswer() {
         entry.found = true;
 
         updateEntrySectionCount(entry);
+        updateSectionComplete(entry);
 
         const slot = board.querySelector(`[data-entry-id="${CSS.escape(entry.id)}"]`);
 
@@ -546,49 +544,8 @@ function submitAnswer() {
 
     if (state.found.size >= state.gameEntries.length) {
         stopTimer();
-        showCompletion();
     }
 
-}
-
-function showCompletion() {
-
-    if (
-        state.gameEntries.length === 0
-    ) {
-        return;
-    }
-
-    const total =
-        state.gameEntries.length;
-
-    const found =
-        state.found.size;
-
-    if (found < total) {
-        completion.hidden = true;
-        return;
-    }
-
-    stopTimer();
-
-    completion.hidden = false;
-
-    completion.innerHTML = `
-        <h2>Quiz Complete</h2>
-        <p>
-            You found all ${total} Pokémon.
-        </p>
-        <p>
-            Time:
-            <strong>${formatTime(getElapsed())}</strong>
-        </p>
-    `;
-
-    answerInput.disabled = true;
-    answerButton.disabled = true;
-
-    saveGame();
 }
 
 function giveUp() {
@@ -610,6 +567,8 @@ function giveUp() {
         state.found.add(entry.id);
         entry.found = true;
 
+        updateSectionComplete(entry);
+
         const slot =
             board.querySelector(
                 `[data-entry-id="${CSS.escape(entry.id)}"]`
@@ -618,33 +577,11 @@ function giveUp() {
         if (slot) {
             revealSlot(slot, entry);
         }
+
+        updateEntrySectionCount(entry);
     }
 
     updateStats();
-
-    completion.hidden = false;
-
-    completion.innerHTML = `
-        <h2>Quiz Finished</h2>
-        <p>
-            You gave up.
-        </p>
-        <p>
-            Found:
-            <strong>
-                ${state.gameEntries.length - missed.length}
-                / ${state.gameEntries.length}
-            </strong>
-        </p>
-        <p>
-            Missed:
-            <strong>${missed.length}</strong>
-        </p>
-        <p>
-            Time:
-            <strong>${formatTime(getElapsed())}</strong>
-        </p>
-    `;
 
     answerInput.disabled = true;
     answerButton.disabled = true;
@@ -682,7 +619,6 @@ export {
     createNewGame,
     loadSavedGameIntoState,
     submitAnswer,
-    showCompletion,
     giveUp,
     setMode,
     updatePauseButton,
