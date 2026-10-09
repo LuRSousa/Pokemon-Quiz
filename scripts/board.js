@@ -117,7 +117,7 @@ const specialColumnOrders = [
     [
         ["Legendary", "Ultra Beasts", "Mega Evolutions"],
         ["Mythical", "Paradox", "Gigantamax", "Other Forms"]
-    ]
+    ],
 
     // 3 colunas
     [

@@ -362,7 +362,7 @@ button:disabled {
 }
 
 .board-column {
-    flex: 0 1 220px;
+    flex: 1 1 220px;
     width: 220px;
     min-width: 0;
     max-width: 100%;
