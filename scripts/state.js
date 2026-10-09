@@ -5,8 +5,8 @@ const state = {
 
     // Configuração atual do jogo
     mode: "all",
-    generation: null,
-    type: null,
+    generation: "1",
+    type: "normal",
     inspiration: "all",
     color: "all",
     game: "all",
@@ -21,8 +21,8 @@ const state = {
     // Configuração selecionada na interface,
     // mas ainda não aplicada ao jogo
     pendingMode: "all",
-    pendingGeneration: null,
-    pendingType: null,
+    pendingGeneration: "1",
+    pendingType: "normal",
     pendingInspiration: "all",
     pendingColor: "all",
     pendingGame: "all",
