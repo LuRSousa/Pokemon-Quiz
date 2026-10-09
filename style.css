@@ -528,7 +528,8 @@ button:disabled {
         flex: 1;
     }
 
-    #board.generation-mode .generation .slot-grid {
+    #board.generation-mode .generation .slot-grid,
+    #board.special-filter-mode .generation .slot-grid {
         grid-template-columns: repeat(12, minmax(0, 1fr));
     }
 }
@@ -542,13 +543,16 @@ button:disabled {
         width: 100%;
     }
 
-    #board.generation-mode .generation .slot-grid {
+    #board.generation-mode .generation .slot-grid,
+    #board.special-filter-mode .generation .slot-grid {
         grid-template-columns: repeat(6, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 360px) {
-    #board.generation-mode .generation .slot-grid {
+
+    #board.generation-mode .generation .slot-grid,
+    #board.special-filter-mode .generation .slot-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
