@@ -40,7 +40,7 @@ async function loadDatabase() {
 
     if (
         cached &&
-        cached.version === 6 &&
+        cached.version === 7 &&
         cached.entries?.length
     ) {
         loadingText.textContent =
@@ -321,6 +321,7 @@ async function loadDatabase() {
                 species.name,
                 {
                     regionalDex,
+                    color: species.color?.name ?? null,
                     isLegendary: Boolean(species.is_legendary),
                     isMythical: Boolean(species.is_mythical)
                 }
@@ -408,6 +409,7 @@ async function loadDatabase() {
                 false,
 
             regionalDex,
+            color: speciesInfo.color ?? null,
             isLegendary: speciesInfo.isLegendary ?? false,
             isMythical: speciesInfo.isMythical ?? false
         };
@@ -420,7 +422,7 @@ async function loadDatabase() {
     );
 
     const database = {
-        version: 6,
+        version: 7,
         created: Date.now(),
         entries
     };

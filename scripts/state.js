@@ -8,7 +8,7 @@ const state = {
     generation: "1",
     type: "normal",
     inspiration: "all",
-    color: "all",
+    color: "black",
     game: "all",
     special: "all",
 
@@ -24,7 +24,7 @@ const state = {
     pendingGeneration: "1",
     pendingType: "normal",
     pendingInspiration: "all",
-    pendingColor: "all",
+    pendingColor: "black",
     pendingGame: "all",
     pendingSpecial: "all",
 

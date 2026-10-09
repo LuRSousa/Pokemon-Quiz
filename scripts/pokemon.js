@@ -101,6 +101,7 @@ function makeQuizEntry(
         pokemonId: apiEntry.id,
         apiName: apiEntry.name,
         species: apiEntry.species,
+        color: apiEntry.color ?? null,
         isLegendary: apiEntry.isLegendary ?? false,
         isMythical: apiEntry.isMythical ?? false,
         displayName: displayName(apiEntry),

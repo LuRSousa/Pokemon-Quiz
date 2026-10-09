@@ -17,7 +17,31 @@ import {
     generationForId
 } from "./utils.js";
 
+const POKEMON_COLORS = [
+    "black",
+    "blue",
+    "brown",
+    "gray",
+    "green",
+    "pink",
+    "purple",
+    "red",
+    "white",
+    "yellow"
+];
 
+const COLOR_NAMES = {
+    black: "Black",
+    blue: "Blue",
+    brown: "Brown",
+    gray: "Gray",
+    green: "Green",
+    pink: "Pink",
+    purple: "Purple",
+    red: "Red",
+    white: "White",
+    yellow: "Yellow"
+};
 const ULTRA_BEASTS = new Set([
     "nihilego",
     "buzzwole",
@@ -141,6 +165,13 @@ function buildQuizEntries() {
             continue;
         }
 
+        if (
+            state.mode === "color" &&
+            entry.color !== state.color
+        ) {
+            continue;
+        }
+
         const generation = getQuizGeneration(entry);
 
         if (!generation) {
@@ -196,6 +227,13 @@ function buildQuizEntries() {
         }
 
         if (!shouldIncludeEntry(entry)) {
+            continue;
+        }
+
+        if (
+            state.mode === "color" &&
+            entry.color !== state.color
+        ) {
             continue;
         }
 
@@ -430,6 +468,111 @@ function isGimmickEntry(entry) {
 
 function getSections() {
     const sections = [];
+
+    if (state.mode === "color") {
+        for (const region of [
+            "kanto",
+            "johto",
+            "hoenn",
+            "sinnoh",
+            "unova",
+            "kalos",
+            "alola",
+            "galar",
+            "hisui",
+            "paldea"
+        ]) {
+            const generationByRegion = {
+                kanto: 1,
+                johto: 2,
+                hoenn: 3,
+                sinnoh: 4,
+                unova: 5,
+                kalos: 6,
+                alola: 7,
+                galar: 8,
+                hisui: 8,
+                paldea: 9
+            };
+
+            const regionNames = {
+                kanto: "Kanto",
+                johto: "Johto",
+                hoenn: "Hoenn",
+                sinnoh: "Sinnoh",
+                unova: "Unova",
+                kalos: "Kalos",
+                alola: "Alola",
+                galar: "Galar",
+                hisui: "Hisui",
+                paldea: "Paldea"
+            };
+
+            const entries = state.gameEntries.filter(
+                entry =>
+                    entry.color === state.color &&
+                    entry.region === region &&
+                    (
+                        entry.category === "pokemon" ||
+                        entry.category === "regional"
+                    )
+            );
+
+            entries.sort(
+                (a, b) => compareRegionalEntries(a, b, region)
+            );
+
+            if (entries.length > 0) {
+                sections.push({
+                    generation: generationByRegion[region],
+                    region,
+                    title: regionNames[region],
+                    entries
+                });
+            }
+        }
+
+        const megaEntries = state.gameEntries.filter(
+            entry => entry.category === "mega"
+        );
+
+        const gmaxEntries = state.gameEntries.filter(
+            entry => entry.category === "gmax"
+        );
+
+        const otherEntries = state.gameEntries.filter(
+            entry => entry.category === "other"
+        );
+
+        if (megaEntries.length > 0) {
+            sections.push({
+                special: true,
+                specialType: "mega",
+                title: "Mega Evolutions",
+                entries: megaEntries
+            });
+        }
+
+        if (gmaxEntries.length > 0) {
+            sections.push({
+                special: true,
+                specialType: "gmax",
+                title: "Gigantamax",
+                entries: gmaxEntries
+            });
+        }
+
+        if (otherEntries.length > 0) {
+            sections.push({
+                special: true,
+                specialType: "other",
+                title: "Other Forms",
+                entries: otherEntries
+            });
+        }
+
+        return sections;
+    }
 
     // Special mode: organize by category, not by region.
     if (state.mode === "special") {
