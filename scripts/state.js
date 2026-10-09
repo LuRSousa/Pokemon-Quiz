@@ -7,6 +7,11 @@ const state = {
     mode: "all",
     generation: null,
     type: null,
+    inspiration: "all",
+    color: "all",
+    game: "all",
+    special: "all",
+
     regional: true,
     gimmick: true,
     otherForms: true,
@@ -18,6 +23,11 @@ const state = {
     pendingMode: "all",
     pendingGeneration: null,
     pendingType: null,
+    pendingInspiration: "all",
+    pendingColor: "all",
+    pendingGame: "all",
+    pendingSpecial: "all",
+
     pendingRegional: true,
     pendingGimmick: true,
     pendingOtherForms: true,

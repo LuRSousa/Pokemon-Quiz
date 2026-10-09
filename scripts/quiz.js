@@ -17,6 +17,90 @@ import {
     generationForId
 } from "./utils.js";
 
+
+const ULTRA_BEASTS = new Set([
+    "nihilego",
+    "buzzwole",
+    "pheromosa",
+    "xurkitree",
+    "celesteela",
+    "kartana",
+    "guzzlord",
+    "poipole",
+    "naganadel",
+    "stakataka",
+    "blacephalon"
+].map(normalizeName));
+
+const PARADOX_POKEMON = new Set([
+    "great-tusk",
+    "scream-tail",
+    "brute-bonnet",
+    "flutter-mane",
+    "slither-wing",
+    "sandy-shocks",
+    "roaring-moon",
+    "walking-wake",
+    "gouging-fire",
+    "raging-bolt",
+    "koraidon",
+    "iron-treads",
+    "iron-bundle",
+    "iron-hands",
+    "iron-jugulis",
+    "iron-moth",
+    "iron-thorns",
+    "iron-valiant",
+    "iron-leaves",
+    "iron-boulder",
+    "iron-crown",
+    "miraidon"
+].map(normalizeName));
+
+function matchesSpecialCategory(entry, kind = classifyForm(entry)) {
+    const speciesName = normalizeName(
+        entry.species || baseSpeciesName(entry) || entry.name
+    );
+
+    const isUltraBeast = ULTRA_BEASTS.has(speciesName);
+    const isParadox = PARADOX_POKEMON.has(speciesName);
+    const isMega = kind === "mega";
+    const isGmax = kind === "gmax";
+
+    switch (state.special) {
+        case "all":
+            return (
+                entry.isLegendary === true ||
+                entry.isMythical === true ||
+                isUltraBeast ||
+                isParadox ||
+                isMega ||
+                isGmax
+            );
+
+        case "legendary":
+            return entry.isLegendary === true;
+
+        case "mythical":
+            return entry.isMythical === true;
+
+        case "ultra":
+            return isUltraBeast;
+
+        case "paradox":
+            return isParadox;
+
+        case "mega":
+            return isMega;
+
+        case "gmax":
+            return isGmax;
+
+        default:
+            return false;
+    }
+}
+
 function buildQuizEntries() {
 
     const entries = state.database?.entries || [];
@@ -36,6 +120,13 @@ function buildQuizEntries() {
         }
 
         const kind = classifyForm(entry);
+
+        if (
+            state.mode === "special" &&
+            !matchesSpecialCategory(entry, kind)
+        ) {
+            continue;
+        }
 
         /*
             Mega/Gmax/other forms are displayed in the
@@ -105,6 +196,13 @@ function buildQuizEntries() {
         }
 
         if (!shouldIncludeEntry(entry)) {
+            continue;
+        }
+
+        if (
+            state.mode === "special" &&
+            !matchesSpecialCategory(entry, kind)
+        ) {
             continue;
         }
 
@@ -311,10 +409,210 @@ function compareRegionalEntries(a, b, region) {
     return a.id.localeCompare(b.id);
 }
 
-function getSections() {
 
+function getBaseSpeciesKey(entry) {
+    return normalizeName(
+        entry.species ||
+        (entry.name ? baseSpeciesName(entry) : "")
+    );
+}
+
+function isGimmickEntry(entry) {
+    const name = normalizeName(entry.name || "");
+    const category = entry.category;
+
+    return (
+        category === "mega" ||
+        category === "gmax" ||
+        name.includes("eternamax")
+    );
+}
+
+function getSections() {
     const sections = [];
 
+    // Special mode: organize by category, not by region.
+    if (state.mode === "special") {
+        const specialCategories = [
+            {
+                key: "legendary",
+                title: "Legendary",
+                matches: entry =>
+                    entry.isLegendary === true &&
+                    entry.category !== "mega" &&
+                    entry.category !== "gmax" &&
+                    entry.category !== "other"
+            },
+            {
+                key: "mythical",
+                title: "Mythical",
+                matches: entry =>
+                    entry.isMythical === true &&
+                    entry.category !== "mega" &&
+                    entry.category !== "gmax" &&
+                    entry.category !== "other"
+            },
+            {
+                key: "ultra",
+                title: "Ultra Beasts",
+                matches: entry =>
+                    ULTRA_BEASTS.has(
+                        normalizeName(
+                            entry.species ||
+                            (entry.name ? baseSpeciesName(entry) : "")
+                        )
+                    ) &&
+                    entry.category !== "mega" &&
+                    entry.category !== "gmax"
+            },
+            {
+                key: "paradox",
+                title: "Paradox",
+                matches: entry =>
+                    PARADOX_POKEMON.has(
+                        normalizeName(
+                            entry.species ||
+                            (entry.name ? baseSpeciesName(entry) : "")
+                        )
+                    ) &&
+                    !["koraidon", "miraidon"].includes(
+                        normalizeName(
+                            entry.species ||
+                            (entry.name ? baseSpeciesName(entry) : "")
+                        )
+                    ) &&
+                    entry.category !== "mega" &&
+                    entry.category !== "gmax" &&
+                    entry.category !== "other"
+            },
+            {
+                key: "mega",
+                title: "Mega Evolutions",
+                matches: entry => entry.category === "mega"
+            },
+            {
+                key: "gmax",
+                title: "Gigantamax",
+                matches: entry => entry.category === "gmax"
+            },
+            {
+                key: "other",
+                title: "Other Forms",
+                matches: entry => entry.category === "other"
+            }
+        ];
+
+        for (const category of specialCategories) {
+            if (
+                state.special !== "all" &&
+                state.special !== category.key &&
+                category.key !== "other"
+            ) {
+                continue;
+            }
+
+            const entries = state.gameEntries.filter(
+                category.matches
+            );
+
+            if (category.key === "legendary") {
+                entries.sort((a, b) => {
+                    const regionOrder = [
+                        "kanto",
+                        "johto",
+                        "hoenn",
+                        "sinnoh",
+                        "unova",
+                        "kalos",
+                        "alola",
+                        "galar",
+                        "hisui",
+                        "paldea"
+                    ];
+
+                    const regionA = regionOrder.indexOf(a.region);
+                    const regionB = regionOrder.indexOf(b.region);
+
+                    const indexA = regionA === -1
+                        ? regionOrder.length
+                        : regionA;
+
+                    const indexB = regionB === -1
+                        ? regionOrder.length
+                        : regionB;
+
+                    return indexA - indexB;
+                });
+            }
+
+            if (entries.length === 0) {
+                continue;
+            }
+
+            sections.push({
+                special: true,
+                specialType: category.key,
+                title: category.title,
+                entries
+            });
+        }
+
+        const gimmickCategories = [
+            "legendary",
+            "mythical",
+            "ultra",
+            "paradox"
+        ];
+
+        if (gimmickCategories.includes(state.special)) {
+            const selectedSection = sections.find(
+                section => section.specialType === state.special
+            );
+
+            if (selectedSection) {
+                const baseSpecies = new Set(
+                    selectedSection.entries.map(getBaseSpeciesKey)
+                );
+
+                const gimmickEntries = state.gameEntries.filter(entry => {
+                    if (!isGimmickEntry(entry)) {
+                        return false;
+                    }
+
+                    return baseSpecies.has(getBaseSpeciesKey(entry));
+                });
+
+                if (gimmickEntries.length > 0) {
+                    const gimmickSection = {
+                        special: true,
+                        specialType: "gimmicks",
+                        title: "Gimmicks",
+                        entries: gimmickEntries
+                    };
+
+                    // Coloca Gimmicks antes de Other Forms.
+                    const otherFormsIndex = sections.findIndex(
+                        section => section.specialType === "other"
+                    );
+
+                    if (otherFormsIndex >= 0) {
+                        sections.splice(
+                            otherFormsIndex,
+                            0,
+                            gimmickSection
+                        );
+                    } else {
+                        sections.push(gimmickSection);
+                    }
+                }
+            }
+        }
+
+        return sections;
+    }
+
+    // Existing regional organization for All Pokémon,
+    // Generation and Type modes.
     const regionOrder = [
         "kanto",
         "johto",
@@ -355,7 +653,6 @@ function getSections() {
     };
 
     for (const region of regionOrder) {
-
         const generation = regionGeneration[region];
 
         if (
@@ -389,10 +686,6 @@ function getSections() {
             entries
         });
     }
-
-    /*
-        Special forms remain separate from the regional sections.
-    */
 
     const megaEntries = state.gameEntries.filter(
         entry => entry.category === "mega"

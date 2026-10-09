@@ -40,7 +40,7 @@ async function loadDatabase() {
 
     if (
         cached &&
-        cached.version === 5 &&
+        cached.version === 6 &&
         cached.entries?.length
     ) {
         loadingText.textContent =
@@ -319,7 +319,11 @@ async function loadDatabase() {
 
             speciesDexData.set(
                 species.name,
-                regionalDex
+                {
+                    regionalDex,
+                    isLegendary: Boolean(species.is_legendary),
+                    isMythical: Boolean(species.is_mythical)
+                }
             );
         }
 
@@ -355,10 +359,13 @@ async function loadDatabase() {
                 )
                 : null;
 
-        const regionalDex =
+        const speciesInfo =
             speciesDexData.get(
                 pokemon.species?.name
             ) || {};
+
+        const regionalDex =
+            speciesInfo.regionalDex || {};
 
         const entry = {
             id: pokemon.id,
@@ -400,7 +407,9 @@ async function loadDatabase() {
                 metadata?.isMega ??
                 false,
 
-            regionalDex
+            regionalDex,
+            isLegendary: speciesInfo.isLegendary ?? false,
+            isMythical: speciesInfo.isMythical ?? false
         };
 
         entries.push(entry);
@@ -411,7 +420,7 @@ async function loadDatabase() {
     );
 
     const database = {
-        version: 5,
+        version: 6,
         created: Date.now(),
         entries
     };

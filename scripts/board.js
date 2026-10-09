@@ -70,39 +70,86 @@ function revealSlot(slot, entry) {
 
 const MIN_COLUMN_WIDTH = 220;
 const COLUMN_GAP = 14;
+
 const columnOrders = [
-    [ //6 colunas
+    [ // 1 coluna
+        ["kanto", "johto", "hoenn", "sinnoh", "unova", "kalos", "alola", "hisui", "galar", "paldea", "Mega Evolutions", "Gigantamax", "Other Forms"]
+    ],
+    [ // 2 colunas
+        ["kanto", "hoenn", "unova", "hisui", "galar", "Mega Evolutions"],
+        ["johto", "sinnoh", "kalos", "paldea", "Gigantamax", "Other Forms"]
+    ],
+    [ // 3 colunas
+        ["kanto", "sinnoh", "alola", "Mega Evolutions"],
+        ["johto", "unova", "hisui", "galar", "Gigantamax"],
+        ["hoenn", "kalos", "paldea", "Other Forms"]
+    ],
+    [ // 4 colunas
+        ["kanto", "unova", "paldea"],
+        ["johto", "kalos", "Mega Evolutions", "Other Forms"],
+        ["hoenn", "alola", "Gigantamax"],
+        ["sinnoh", "hisui", "galar"]
+    ],
+    [ // 5 colunas
+        ["kanto", "kalos", "Mega Evolutions"],
+        ["johto", "alola", "Gigantamax"],
+        ["hoenn", "hisui", "galar"],
+        ["sinnoh", "paldea"],
+        ["unova", "Other Forms"]
+    ],
+    [ // 6 colunas
         ["kanto", "alola"],
         ["johto", "hisui", "galar"],
         ["hoenn", "paldea"],
         ["sinnoh", "Mega Evolutions"],
         ["unova", "Gigantamax"],
         ["kalos", "Other Forms"]
+    ]
+];
+
+const specialColumnOrders = [
+    // 1 coluna
+    [
+        ["Legendary", "Mythical", "Ultra Beasts", "Paradox", "Mega Evolutions", "Gigantamax", "Other Forms"]
     ],
-    [ //5 colunas
-        ["kanto", "kalos", "Mega Evolutions"],
-        ["johto", "alola", "Gigantamax"],
-        ["hoenn", "hisui", "galar"],
-        ["sinnoh", "paldea"],
-        ["unova", "Other Forms"],
+
+    // 2 colunas
+    [
+        ["Legendary", "Ultra Beasts", "Mega Evolutions"],
+        ["Mythical", "Paradox", "Gigantamax", "Other Forms"]
+    ]
+
+    // 3 colunas
+    [
+    ["Legendary"],
+    ["Mega Evolutions", "Ultra Beasts"],
+    ["Gigantamax", "Paradox", "Other Forms"]
     ],
-    [ //4 colunas
-        ["kanto", "unova", "paldea"],
-        ["johto", "kalos", "Mega Evolutions", "Other Forms"],
-        ["hoenn", "alola", "Gigantamax"],
-        ["sinnoh", "hisui", "galar"],
+
+    // 4 colunas
+    [
+        ["Legendary", "Mega Evolutions"],
+        ["Mythical", "Gigantamax"],
+        ["Ultra Beasts"],
+        ["Paradox", "Other Forms"]
     ],
-    [ //3 colunas
-        ["kanto", "sinnoh", "alola", "Mega Evolutions"],
-        ["johto", "unova", "hisui", "galar", "Gigantamax"],
-        ["hoenn", "kalos", "paldea", "Other Forms"],
+
+    // 5 colunas
+    [
+        ["Legendary"],
+        ["Mega Evolutions"],
+        ["Mythical", "Ultra Beasts"],
+        ["Gigantamax", "Paradox"],
+        ["Other Forms"]
     ],
-    [ //2 colunas
-        ["kanto", "hoenn", "unova", "hisui", "galar", "Mega Evolutions"],
-        ["johto", "sinnoh", "kalos", "paldea", "Gigantamax", "Other Forms"],
-    ],
-    [ //1 coluna
-        ["kanto", "johto", "hoenn", "sinnoh", "unova", "kalos", "alola", "hisui", "galar", "paldea", "Mega Evolutions", "Gigantamax", "Other Forms"],
+
+    // 6 colunas
+    [
+        ["Legendary"],
+        ["Mythical", "Ultra Beasts", "Paradox"],
+        ["Mega Evolutions"],
+        ["Gigantamax"],
+        ["Other Forms"]
     ]
 ];
 let currentColumnCount = null;
@@ -127,28 +174,13 @@ function getMaxColumns() {
 
 function getColumnOrder() {
     const columnCount = getMaxColumns();
+    const index = Math.min(6, columnCount) - 1;
 
-    if (columnCount >= 6) {
-        return columnOrders[0];
+    if (state.mode === "special") {
+        return specialColumnOrders[index];
     }
 
-    if (columnCount === 5) {
-        return columnOrders[1];
-    }
-
-    if (columnCount === 4) {
-        return columnOrders[2];
-    }
-
-    if (columnCount === 3) {
-        return columnOrders[3];
-    }
-
-    if (columnCount === 2) {
-        return columnOrders[4];
-    }
-
-    return columnOrders[5];
+    return columnOrders[index];
 }
 
 function updateResponsiveBoard() {
@@ -165,45 +197,39 @@ function renderBoard() {
     board.innerHTML = "";
 
     board.classList.toggle(
-        "generation-mode",
-        state.mode === "generation"
+        "special-filter-mode",
+        state.mode === "special" &&
+        state.special !== "all"
     );
 
     const sections = getSections();
-
     const columnOrder = getColumnOrder();
     currentColumnCount = getMaxColumns();
 
     const columnsContainer = document.createElement("div");
-
     columnsContainer.className = "board-columns";
 
-    if (state.mode === "generation") {
-
+    if (
+        state.mode === "generation" ||
+        (
+            state.mode === "special" &&
+            state.special !== "all"
+        )
+    ) {
         const column = document.createElement("div");
-
         column.className = "board-column";
 
         for (const section of sections) {
-            column.appendChild(
-                createSectionElement(section)
-            );
+            column.appendChild(createSectionElement(section));
         }
 
         columnsContainer.appendChild(column);
-
     } else {
-
-        const columnOrder = getColumnOrder();
-
         for (const order of columnOrder) {
-
             const column = document.createElement("div");
-
             column.className = "board-column";
 
             for (const key of order) {
-
                 const section = sections.find(section => {
                     if (section.special) {
                         return section.title === key;
@@ -212,13 +238,9 @@ function renderBoard() {
                     return section.region === key;
                 });
 
-                if (!section) {
-                    continue;
-                }
+                if (!section) continue;
 
-                column.appendChild(
-                    createSectionElement(section)
-                );
+                column.appendChild(createSectionElement(section));
             }
 
             columnsContainer.appendChild(column);
@@ -233,7 +255,7 @@ function createSectionElement(section) {
     container.className = "generation";
 
     container.dataset.sectionKey =
-    section.id || section.key || section.title;
+        section.id || section.key || section.title;
 
     if (section.special) {
         container.classList.add("special-section");

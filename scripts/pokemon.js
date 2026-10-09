@@ -9,13 +9,16 @@ import { normalizeName } from "./utils.js";
 import { generationRegions } from "./config.js";
 
 function baseSpeciesName(entry) {
-    if (!entry.species) {
-        return entry.name.split("-")[0];
+    if (entry.species) {
+        return entry.species;
     }
 
-    return entry.species;
-}
+    if (typeof entry.name !== "string" || !entry.name) {
+        return "";
+    }
 
+    return entry.name.split("-")[0];
+}
 function getEntryGeneration(entry) {
     if (entry.region === "alola") return 7;
     if (entry.region === "galar") return 8;
@@ -97,6 +100,9 @@ function makeQuizEntry(
         id: entryId,
         pokemonId: apiEntry.id,
         apiName: apiEntry.name,
+        species: apiEntry.species,
+        isLegendary: apiEntry.isLegendary ?? false,
+        isMythical: apiEntry.isMythical ?? false,
         displayName: displayName(apiEntry),
         answer: normalizeName(answer),
         sprite: apiEntry.sprite,

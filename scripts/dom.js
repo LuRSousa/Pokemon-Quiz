@@ -19,9 +19,22 @@ const otherFormsToggle = $("otherFormsToggle");
 const shinyToggle = $("shinyToggle");
 const shadowToggle = $("shadowToggle");
 
-const allModeBtn = $("allModeBtn");
+
+const modeSelect = $("modeSelect");
+
+const generationControl = $("generationControl");
+const typeControl = $("typeControl");
+const inspirationControl = $("inspirationControl");
+const colorControl = $("colorControl");
+const gameControl = $("gameControl");
+const specialControl = $("specialControl");
+
 const generationSelect = $("generationSelect");
 const typeSelect = $("typeSelect");
+const inspirationSelect = $("inspirationSelect");
+const colorSelect = $("colorSelect");
+const gameSelect = $("gameSelect");
+const specialSelect = $("specialSelect");
 
 const newGameBtn = $("newGameBtn");
 const giveUpBtn = $("giveUpBtn");
@@ -44,9 +57,19 @@ export {
     shinyToggle,
     shadowToggle,
     pauseBtn,
-    allModeBtn,
+    modeSelect,
+    generationControl,
+    typeControl,
+    inspirationControl,
+    colorControl,
+    gameControl,
+    specialControl,
     generationSelect,
     typeSelect,
+    inspirationSelect,
+    colorSelect,
+    gameSelect,
+    specialSelect,
     newGameBtn,
     giveUpBtn
 };

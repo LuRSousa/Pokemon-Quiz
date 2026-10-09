@@ -1,18 +1,28 @@
 import { state } from "./state.js";
 import {
     answerInput,
+    answerButton,
     timer,
     regionalToggle,
     gimmickToggle,
     otherFormsToggle,
     shinyToggle,
     shadowToggle,
-    allModeBtn,
+    pauseBtn,
+    pendingSettingsMessage,
+    modeSelect,
+    generationControl,
+    typeControl,
+    inspirationControl,
+    colorControl,
+    gameControl,
+    specialControl,
     generationSelect,
     typeSelect,
-    pendingSettingsMessage,
-    answerButton,
-    pauseBtn
+    inspirationSelect,
+    colorSelect,
+    gameSelect,
+    specialSelect,
 } from "./dom.js";
 import {
     buildQuizEntries,
@@ -134,6 +144,10 @@ function saveGame() {
             mode: state.mode,
             generation: state.generation,
             type: state.type,
+            inspiration: state.inspiration,
+            color: state.color,
+            game: state.game,
+            special: state.special,
 
             regional: state.regional,
             gimmick: state.gimmick,
@@ -218,44 +232,72 @@ function applyFormSettingsImmediately() {
     }
 }
 
+
 function applyPendingSettings() {
     state.mode = state.pendingMode;
     state.generation = state.pendingGeneration;
     state.type = state.pendingType;
+
+    state.inspiration = state.pendingInspiration;
+    state.color = state.pendingColor;
+    state.game = state.pendingGame;
+    state.special = state.pendingSpecial;
 
     state.regional = state.pendingRegional;
     state.gimmick = state.pendingGimmick;
     state.otherForms = state.pendingOtherForms;
 }
 
+
+
 function updateModeControls() {
-    allModeBtn.classList.toggle(
-        "active",
-        state.pendingMode === "all"
-    );
+    const mode = state.pendingMode;
 
-    generationSelect.classList.toggle(
-        "active",
-        state.pendingMode === "generation"
-    );
+    modeSelect.value = mode;
 
-    typeSelect.classList.toggle(
-        "active",
-        state.pendingMode === "type"
-    );
+    generationControl.hidden = mode !== "generation";
+    typeControl.hidden = mode !== "type";
+    inspirationControl.hidden = mode !== "inspiration";
+    colorControl.hidden = mode !== "color";
+    gameControl.hidden = mode !== "game";
+    specialControl.hidden = mode !== "special";
+
+    generationSelect.value =
+        state.pendingGeneration !== null
+            ? String(state.pendingGeneration)
+            : "";
+
+    typeSelect.value = state.pendingType ?? "";
+    inspirationSelect.value = state.pendingInspiration ?? "all";
+    colorSelect.value = state.pendingColor ?? "all";
+    gameSelect.value = state.pendingGame ?? "all";
+    specialSelect.value = state.pendingSpecial ?? "all";
+
+    generationSelect.classList.toggle("active", mode === "generation");
+    typeSelect.classList.toggle("active", mode === "type");
+    inspirationSelect.classList.toggle("active", mode === "inspiration");
+    colorSelect.classList.toggle("active", mode === "color");
+    gameSelect.classList.toggle("active", mode === "game");
+    specialSelect.classList.toggle("active", mode === "special");
+
+    updatePendingSettingsMessage();
 }
+
 
 function updatePendingSettingsMessage() {
     const hasPendingChanges =
         state.pendingMode !== state.mode ||
         state.pendingGeneration !== state.generation ||
         state.pendingType !== state.type ||
+        state.pendingInspiration !== state.inspiration ||
+        state.pendingColor !== state.color ||
+        state.pendingGame !== state.game ||
+        state.pendingSpecial !== state.special ||
         state.pendingRegional !== state.regional ||
         state.pendingGimmick !== state.gimmick ||
         state.pendingOtherForms !== state.otherForms;
 
-    pendingSettingsMessage.hidden =
-        !hasPendingChanges;
+    pendingSettingsMessage.hidden = !hasPendingChanges;
 }
 
 function resetFoundState() {
@@ -342,6 +384,22 @@ function loadSavedGameIntoState(saved) {
             saved.type;
     }
 
+    if (typeof saved.inspiration === "string") {
+        state.inspiration = saved.inspiration;
+    }
+
+    if (typeof saved.color === "string") {
+        state.color = saved.color;
+    }
+
+    if (typeof saved.game === "string") {
+        state.game = saved.game;
+    }
+
+    if (typeof saved.special === "string") {
+        state.special = saved.special;
+    }
+
     /*
         Restore form settings.
     */
@@ -404,6 +462,12 @@ function loadSavedGameIntoState(saved) {
     state.pendingMode = state.mode;
     state.pendingGeneration = state.generation;
     state.pendingType = state.type;
+
+    state.pendingInspiration = state.inspiration;
+    state.pendingColor = state.color;
+    state.pendingGame = state.game;
+    state.pendingSpecial = state.special;
+
     state.pendingRegional = state.regional;
     state.pendingGimmick = state.gimmick;
     state.pendingOtherForms = state.otherForms;
@@ -426,14 +490,6 @@ function loadSavedGameIntoState(saved) {
     updateStats();
 
     updateModeControls();
-
-    generationSelect.value =
-        state.generation !== null
-            ? String(state.generation)
-            : "";
-
-    typeSelect.value =
-        state.type ?? "";
 
     regionalToggle.checked = state.regional;
 
@@ -610,12 +666,17 @@ function giveUp() {
 }
 
 function setMode(mode) {
+    const validModes = [
+        "all",
+        "generation",
+        "type",
+        "inspiration",
+        "color",
+        "game",
+        "special",
+    ];
 
-    if (
-        mode !== "all" &&
-        mode !== "generation" &&
-        mode !== "type"
-    ) {
+    if (!validModes.includes(mode)) {
         return;
     }
 

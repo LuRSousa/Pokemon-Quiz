@@ -42,15 +42,21 @@
         <div class="controls-panel">
             <div class="control-row">
                 <div class="control-group">
-                    <span class="control-label">Mode:</span>
+                    <label class="control-label" for="modeSelect">Mode:</label>
 
-                    <button class="mode-btn active" data-mode="all" id="allModeBtn">
-                        All Pokémon
-                    </button>
+                    <select id="modeSelect">
+                        <option value="all">All Pokémon</option>
+                        <option value="generation">Generation</option>
+                        <option value="type">Type</option>
+                        <option value="inspiration">Inspiration</option>
+                        <option value="color">Color</option>
+                        <option value="game">Game</option>
+                        <option value="special">Special</option>
+                    </select>
                 </div>
 
                 <div class="control-group" id="generationControl" hidden>
-                    <span class="control-label">Generation:</span>
+                    <label class="control-label" for="generationSelect">Generation:</label>
 
                     <select id="generationSelect">
                         <option value="">All</option>
@@ -67,7 +73,7 @@
                 </div>
 
                 <div class="control-group" id="typeControl" hidden>
-                    <span class="control-label">Type:</span>
+                    <label class="control-label" for="typeSelect">Type:</label>
 
                     <select id="typeSelect">
                         <option value="">All</option>
@@ -89,6 +95,40 @@
                         <option value="dark">Dark</option>
                         <option value="steel">Steel</option>
                         <option value="fairy">Fairy</option>
+                    </select>
+                </div>
+
+                <div class="control-group" id="inspirationControl" hidden>
+                    <label class="control-label" for="inspirationSelect">Inspiration:</label>
+                    <select id="inspirationSelect">
+                        <option value="all">All</option>
+                    </select>
+                </div>
+
+                <div class="control-group" id="colorControl" hidden>
+                    <label class="control-label" for="colorSelect">Color:</label>
+                    <select id="colorSelect">
+                        <option value="all">All</option>
+                    </select>
+                </div>
+
+                <div class="control-group" id="gameControl" hidden>
+                    <label class="control-label" for="gameSelect">Game:</label>
+                    <select id="gameSelect">
+                        <option value="all">All</option>
+                    </select>
+                </div>
+
+                <div class="control-group" id="specialControl" hidden>
+                    <label class="control-label" for="specialSelect">Special:</label>
+                    <select id="specialSelect">
+                        <option value="all">All</option>
+                        <option value="legendary">Legendary</option>
+                        <option value="mythical">Mythical</option>
+                        <option value="ultra">Ultra Beasts</option>
+                        <option value="paradox">Paradox</option>
+                        <option value="mega">Mega Evolutions</option>
+                        <option value="gmax">Gigantamax</option>
                     </select>
                 </div>
 
