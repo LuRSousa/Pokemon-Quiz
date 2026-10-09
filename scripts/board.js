@@ -193,8 +193,14 @@ function updateResponsiveBoard() {
     renderBoard();
 }
 
+
 function renderBoard() {
     board.innerHTML = "";
+
+    board.classList.toggle(
+        "generation-mode",
+        state.mode === "generation"
+    );
 
     board.classList.toggle(
         "special-filter-mode",
