@@ -520,6 +520,10 @@ button:disabled {
     .stat {
         flex: 1;
     }
+
+    #board.generation-mode .generation .slot-grid {
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 500px) {
@@ -529,5 +533,15 @@ button:disabled {
 
     .answer-button {
         width: 100%;
+    }
+
+    #board.generation-mode .generation .slot-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 360px) {
+    #board.generation-mode .generation .slot-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }

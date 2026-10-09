@@ -11,6 +11,8 @@ import {
     generationSelect,
     typeSelect,
     pendingSettingsMessage,
+    answerButton,
+    pauseBtn
 } from "./dom.js";
 import {
     buildQuizEntries,
@@ -441,31 +443,49 @@ function loadSavedGameIntoState(saved) {
     shinyToggle.checked = state.shiny;
     shadowToggle.checked = state.shadow;
 
+
     answerInput.disabled =
+        state.paused ||
         state.gameEntries.length === 0 ||
         state.found.size >= state.gameEntries.length;
 
-    answerButton.disabled =
-        answerInput.disabled;
+    answerButton.disabled = answerInput.disabled;
 
     if (
         state.gameEntries.length > 0 &&
         state.found.size < state.gameEntries.length
     ) {
-        if (state.startTime) {
-            startTimer();
+        if (state.paused) {
+            // Restaura a partida sem iniciar o cronômetro.
+            stopTimer();
+
+            timer.textContent =
+                formatTime(state.pausedElapsed);
+
+            setMessage("Saved game restored. Game is paused.");
+        } else {
+            if (state.startTime) {
+                startTimer();
+            }
+
+            answerInput.focus();
+
+            setMessage("Saved game restored.");
         }
-
-        answerInput.focus();
-
-        setMessage(
-            "Saved game restored."
-        );
     } else if (
         state.gameEntries.length > 0
     ) {
         stopTimer();
+
+        timer.textContent =
+            formatTime(
+                state.paused
+                    ? state.pausedElapsed
+                    : getElapsed()
+            );
     }
+
+    updatePauseButton();
 
     return true;
 }

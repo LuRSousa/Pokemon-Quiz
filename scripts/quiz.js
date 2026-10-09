@@ -246,26 +246,25 @@ function getNationalDexNumber(entry) {
     return entry.regionalDex?.national ?? Infinity;
 }
 
+
 function getRegionalDexNumber(entry, region) {
     const dex = entry.regionalDex;
 
     if (!dex) return Infinity;
 
     const dexNames = {
-        kanto: ["kanto"],
-        johto: ["updated-johto", "original-johto"],
-        hoenn: ["hoenn"],
-        sinnoh: ["original-sinnoh"],
-        unova: ["updated-unova", "original-unova"],
-        kalos: ["kalos-central", "kalos-coastal", "kalos-mountain"],
-        alola: ["updated-alola", "original-alola"],
+        alola: ["original-alola"],
         galar: ["galar"],
         hisui: ["hisui"],
         paldea: ["paldea"]
     };
 
-    const possibleDexes =
-        dexNames[region] || [];
+    const possibleDexes = dexNames[region];
+
+    // Kanto até Kalos: usar a National Dex.
+    if (!possibleDexes) {
+        return dex.national ?? Infinity;
+    }
 
     for (const dexName of possibleDexes) {
         if (dex[dexName] != null) {
@@ -277,16 +276,25 @@ function getRegionalDexNumber(entry, region) {
 }
 
 function compareRegionalEntries(a, b, region) {
-    const dexA = getNationalDexNumber(a);
-    const dexB = getNationalDexNumber(b);
+    const dexA = getRegionalDexNumber(a, region);
+    const dexB = getRegionalDexNumber(b, region);
 
+    // Primeiro: ordem da Pokédex regional de referência.
     if (dexA !== dexB) {
         return dexA - dexB;
     }
 
-    // Quando a forma normal e uma forma regional
-    // possuem o mesmo Pokémon na National Dex,
-    // a forma normal aparece primeiro.
+    // Se ambos não possuem número regional, usar a National Dex.
+    if (dexA === Infinity && dexB === Infinity) {
+        const nationalA = getNationalDexNumber(a);
+        const nationalB = getNationalDexNumber(b);
+
+        if (nationalA !== nationalB) {
+            return nationalA - nationalB;
+        }
+    }
+
+    // No mesmo número regional, a forma normal vem primeiro.
     if (a.category !== b.category) {
         const order = {
             pokemon: 0,
@@ -299,6 +307,7 @@ function compareRegionalEntries(a, b, region) {
         );
     }
 
+    // Desempate final.
     return a.id.localeCompare(b.id);
 }
 

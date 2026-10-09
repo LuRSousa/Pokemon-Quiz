@@ -34,6 +34,15 @@ function classifyForm(entry) {
         return "other";
     }
 
+    // As duas raças alternativas de Paldean Tauros
+    // ficam em Other Forms, não em Regional Forms.
+    if (
+        name.startsWith("tauros-paldea-blaze") ||
+        name.startsWith("tauros-paldea-aqua")
+    ) {
+        return "other";
+    }
+
     if (formRegion(name)) {
         return "regional";
     }
@@ -171,7 +180,39 @@ const excludedForms = new Set([
     "toxtricity-low-key-gmax",
 
     "zygarde-10-power-construct",
-    "zygarde-50-power-construct"
+    "zygarde-50-power-construct",
+
+    // Basculin: Blue-Striped e White-Striped
+    "basculin-blue-striped",
+    "basculin-white-striped",
+
+    // Pumpkaboo: variações de tamanho
+    "pumpkaboo-small",
+    "pumpkaboo-large",
+    "pumpkaboo-super",
+
+    // Gourgeist: variações de tamanho
+    "gourgeist-small",
+    "gourgeist-large",
+    "gourgeist-super",
+
+    // Greninja
+    "greninja-battle-bond",
+
+    // Rockruff
+    "rockruff-own-tempo",
+
+    // Cramorant
+    "cramorant-gulping",
+    "cramorant-gorging",
+
+    // Zarude
+    "zarude-dada",
+
+    // Squawkabilly: plumagens alternativas
+    "squawkabilly-blue-plumage",
+    "squawkabilly-yellow-plumage",
+    "squawkabilly-white-plumage"
 ]);
 
 function shouldIncludeEntry(entry) {
