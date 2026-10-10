@@ -7,6 +7,7 @@ import {
 
 import { normalizeName } from "./utils.js";
 import { generationRegions } from "./config.js";
+import { getEntryColor } from "./colors.js";
 
 function baseSpeciesName(entry) {
     if (entry.species) {
@@ -101,7 +102,7 @@ function makeQuizEntry(
         pokemonId: apiEntry.id,
         apiName: apiEntry.name,
         species: apiEntry.species,
-        color: apiEntry.color ?? null,
+        color: getEntryColor(apiEntry),
         isLegendary: apiEntry.isLegendary ?? false,
         isMythical: apiEntry.isMythical ?? false,
         displayName: displayName(apiEntry),

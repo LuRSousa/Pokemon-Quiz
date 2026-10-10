@@ -1,4 +1,5 @@
 import { state } from "./state.js";
+import { getEntryColor } from "./colors.js";
 
 import {
     baseSpeciesName,
@@ -167,7 +168,7 @@ function buildQuizEntries() {
 
         if (
             state.mode === "color" &&
-            entry.color !== state.color
+            getEntryColor(entry) !== state.color
         ) {
             continue;
         }
@@ -232,7 +233,7 @@ function buildQuizEntries() {
 
         if (
             state.mode === "color" &&
-            entry.color !== state.color
+            getEntryColor(entry) !== state.color
         ) {
             continue;
         }
