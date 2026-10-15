@@ -18,6 +18,9 @@ import {
     newGameBtn,
     giveUpBtn,
     pauseBtn,
+    completionModal,
+    completionCloseBtn,
+    completionNewGameBtn
 } from "./dom.js";
 
 import {
@@ -133,12 +136,28 @@ newGameBtn.addEventListener("click", () => {
 });
 
 giveUpBtn.addEventListener("click", () => {
-    const confirmed = window.confirm(
-        "Are you sure you want to give up?"
-    );
+  const confirmed = confirm("Are you sure you want to give up? This will end the current game and reveal all remaining Pokémon.");
 
-    if (confirmed) {
-        giveUp();
+  if (!confirmed) return;
+
+  giveUp();
+});
+
+// Fecha o modal sem reiniciar a partida.
+completionCloseBtn.addEventListener("click", () => {
+    completionModal.hidden = true;
+});
+
+// Inicia uma nova partida pelo fluxo existente.
+completionNewGameBtn.addEventListener("click", () => {
+    completionModal.hidden = true;
+    createNewGame(true);
+});
+
+// Fecha somente quando o clique acontece no fundo do modal.
+completionModal.addEventListener("click", event => {
+    if (event.target === completionModal) {
+        completionModal.hidden = true;
     }
 });
 

@@ -23,6 +23,14 @@ import {
     colorSelect,
     gameSelect,
     specialSelect,
+    completionModal,
+    completionReason,
+    completionMode,
+    completionFound,
+    completionTotal,
+    completionMissed,
+    completionPercentage,
+    completionTime
 } from "./dom.js";
 import {
     buildQuizEntries,
@@ -48,6 +56,9 @@ import { normalizeName } from "./utils.js";
 
 
 function startTimer() {
+    if (state.finished) {
+        return;
+    }
 
     if (state.timerId) {
         clearInterval(state.timerId);
@@ -69,7 +80,6 @@ function startTimer() {
 }
 
 function stopTimer() {
-
     if (state.timerId) {
         clearInterval(state.timerId);
         state.timerId = null;
@@ -78,11 +88,12 @@ function stopTimer() {
 
 function updatePauseButton() {
     const canPause =
+        !state.finished &&
         state.gameEntries.length > 0 &&
         state.found.size < state.gameEntries.length;
 
     pauseBtn.disabled = !canPause;
-    pauseBtn.textContent = state.paused ? "Resume" : "Pause";
+    pauseBtn.textContent = state.paused ? "▶" : "⏸";
 }
 
 function pauseTimer() {
@@ -90,7 +101,8 @@ function pauseTimer() {
         state.paused ||
         state.gameEntries.length === 0 ||
         !state.startTime ||
-        state.found.size >= state.gameEntries.length
+        state.found.size >= state.gameEntries.length ||
+        state.finished
     ) {
         return;
     }
@@ -107,8 +119,8 @@ function pauseTimer() {
     saveGame();
 }
 
-function resumeTimer() {
-    if (!state.paused) {
+function resumeTimer() {    
+    if (!state.paused || state.finished) {
         return;
     }
 
@@ -137,9 +149,7 @@ function togglePause() {
 }
 
 function saveGame() {
-
     try {
-
         const save = {
             mode: state.mode,
             generation: state.generation,
@@ -160,6 +170,10 @@ function saveGame() {
             startTime: state.startTime,
             paused: state.paused,
             pausedElapsed: state.pausedElapsed,
+
+            finished: state.finished,
+            endReason: state.endReason,
+            elapsedAtEnd: state.elapsedAtEnd,
 
             savedAt: Date.now()
         };
@@ -331,6 +345,12 @@ function createNewGame(clearSave = true) {
         clearSavedGame();
     }
 
+    state.finished = false;
+    state.endReason = null;
+    state.elapsedAtEnd = null;
+
+    completionModal.hidden = true;
+
     renderBoard();
     updateStats();
 
@@ -492,6 +512,25 @@ function loadSavedGameIntoState(saved) {
     state.pendingGimmick = state.gimmick;
     state.pendingOtherForms = state.otherForms;
 
+    state.finished = saved.finished === true;
+
+    state.endReason =
+        ["victory", "giveup"].includes(saved.endReason)
+            ? saved.endReason
+            : null;
+
+    state.elapsedAtEnd =
+        Number.isFinite(saved.elapsedAtEnd)
+            ? saved.elapsedAtEnd
+            : null;
+
+    // Não aceitar um encerramento inconsistente no save.
+    if (!state.finished || !state.endReason) {
+        state.finished = false;
+        state.endReason = null;
+        state.elapsedAtEnd = null;
+    }
+
     /*
         Restore timer.
     */
@@ -521,6 +560,7 @@ function loadSavedGameIntoState(saved) {
 
 
     answerInput.disabled =
+        state.finished ||
         state.paused ||
         state.gameEntries.length === 0 ||
         state.found.size >= state.gameEntries.length;
@@ -532,7 +572,7 @@ function loadSavedGameIntoState(saved) {
         state.found.size < state.gameEntries.length
     ) {
         if (state.paused) {
-            // Restaura a partida sem iniciar o cronômetro.
+            // Restaura a partida pausada sem abrir o modal de conclusão.
             stopTimer();
 
             timer.textContent =
@@ -566,8 +606,101 @@ function loadSavedGameIntoState(saved) {
     return true;
 }
 
+function getFoundCount() {
+    return state.gameEntries.filter(
+        entry => state.found.has(entry.id)
+    ).length;
+}
+
+function finishGame(reason) {
+    if (
+        state.finished ||
+        state.gameEntries.length === 0 ||
+        !["victory", "giveup"].includes(reason)
+    ) {
+        return;
+    }
+
+    const total = state.gameEntries.length;
+    const found = getFoundCount();
+    const missed = total - found;
+
+    // Uma vitória só é válida quando todas as entradas foram encontradas.
+    if (reason === "victory" && missed !== 0) {
+        return;
+    }
+
+    // Captura o tempo antes de alterar o estado do cronômetro.
+    const finalElapsed = state.paused
+        ? state.pausedElapsed
+        : getElapsed();
+
+    stopTimer();
+
+    state.finished = true;
+    state.endReason = reason;
+    state.elapsedAtEnd = finalElapsed;
+
+    state.paused = false;
+
+    answerInput.disabled = true;
+    answerButton.disabled = true;
+
+    const modeLabels = {
+        all: "All Pokémon",
+        generation: "Generation",
+        type: "Type",
+        inspiration: "Inspiration",
+        color: "Color",
+        game: "Game",
+        special: "Special"
+    };
+
+    let modeText = modeLabels[state.mode] || state.mode;
+
+    if (state.mode === "generation") {
+        modeText += ` — Gen ${state.generation}`;
+    } else if (state.mode === "type") {
+        const typeName = String(state.type || "");
+        modeText += ` — ${
+            typeName.charAt(0).toUpperCase() +
+            typeName.slice(1)
+        }`;
+    }
+
+    completionReason.textContent =
+        reason === "victory"
+            ? "Vitória — todos os Pokémon foram encontrados."
+            : "Desistência — partida encerrada com Give Up.";
+
+    completionMode.textContent = `Modo: ${modeText}`;
+
+    completionFound.textContent = String(found);
+    completionTotal.textContent = String(total);
+    completionMissed.textContent = String(missed);
+
+    completionPercentage.textContent =
+        `${((found / total) * 100).toFixed(1).replace(".", ",")}%`;
+
+    completionTime.textContent =
+        formatTime(finalElapsed);
+
+    // Na desistência, renderBoard revelará os não encontrados
+    // e aplicará a classe visual correspondente.
+    if (reason === "giveup") {
+        renderBoard();
+    }
+
+    updateStats();
+    updatePauseButton();
+
+    completionModal.hidden = false;
+
+    saveGame();
+}
+
 function submitAnswer() {
-    if (state.paused) {
+    if (state.paused || state.finished) {
         return;
     }
 
@@ -638,51 +771,22 @@ function submitAnswer() {
 
     answerInput.focus();
 
-    if (state.found.size >= state.gameEntries.length) {
-        stopTimer();
+    if (getFoundCount() === state.gameEntries.length) {
+        finishGame("victory");
+    } else {
+        saveGame();
     }
-
 }
 
 function giveUp() {
     if (
-        state.gameEntries.length === 0 ||
-        state.found.size >= state.gameEntries.length
+        state.finished ||
+        state.gameEntries.length === 0
     ) {
         return;
     }
 
-    stopTimer();
-
-    const missed =
-        state.gameEntries.filter(
-            entry => !state.found.has(entry.id)
-        );
-
-    for (const entry of missed) {
-        state.found.add(entry.id);
-        entry.found = true;
-
-        updateSectionComplete(entry);
-
-        const slot =
-            board.querySelector(
-                `[data-entry-id="${CSS.escape(entry.id)}"]`
-            );
-
-        if (slot) {
-            revealSlot(slot, entry);
-        }
-
-        updateEntrySectionCount(entry);
-    }
-
-    updateStats();
-
-    answerInput.disabled = true;
-    answerButton.disabled = true;
-
-    saveGame();
+    finishGame("giveup");
 }
 
 function setMode(mode) {

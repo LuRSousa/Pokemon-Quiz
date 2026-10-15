@@ -2,8 +2,7 @@ const state = {
     database: null,
     gameEntries: [],
     found: new Set(),
-
-    // Configuração atual do jogo
+    
     mode: "all",
     generation: "1",
     type: "normal",
@@ -18,8 +17,6 @@ const state = {
     shiny: false,
     shadow: false,
 
-    // Configuração selecionada na interface,
-    // mas ainda não aplicada ao jogo
     pendingMode: "all",
     pendingGeneration: "1",
     pendingType: "normal",
@@ -35,7 +32,11 @@ const state = {
     startTime: null,
     timerId: null,
     paused: false,
-    pausedElapsed: 0
+    pausedElapsed: 0,
+
+    finished: false,
+    endReason: null,
+    elapsedAtEnd: null
 };
 
 export {

@@ -212,6 +212,66 @@
 
     <div id="board"></div>
 
+    <div
+        id="completionModal"
+        class="completion-overlay"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="completionTitle"
+    >
+        <section class="completion-panel">
+            <h2 id="completionTitle">Partida encerrada</h2>
+
+            <p id="completionReason" class="completion-reason"></p>
+            <p id="completionMode" class="completion-mode"></p>
+
+            <div class="completion-stats">
+                <div class="completion-stat">
+                    <span>Encontrados</span>
+                    <strong id="completionFound">0</strong>
+                </div>
+
+                <div class="completion-stat">
+                    <span>Total disponível</span>
+                    <strong id="completionTotal">0</strong>
+                </div>
+
+                <div class="completion-stat">
+                    <span>Não encontrados</span>
+                    <strong id="completionMissed">0</strong>
+                </div>
+
+                <div class="completion-stat">
+                    <span>Conclusão</span>
+                    <strong id="completionPercentage">0%</strong>
+                </div>
+
+                <div class="completion-stat completion-time">
+                    <span>Tempo total</span>
+                    <strong id="completionTime">00:00</strong>
+                </div>
+            </div>
+
+            <div class="completion-actions">
+                <button
+                    type="button"
+                    id="completionCloseBtn"
+                >
+                    Fechar
+                </button>
+
+                <button
+                    type="button"
+                    id="completionNewGameBtn"
+                    class="primary"
+                >
+                    New Game
+                </button>
+            </div>
+        </section>
+    </div>
+
     <script type="module" src="scripts/main.js"></script>
 
 </body>

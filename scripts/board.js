@@ -26,6 +26,9 @@ function createSlot(entry) {
     */
     if (state.found.has(entry.id)) {
         revealSlot(slot, entry);
+    } else if (state.finished && state.endReason === "giveup") {
+        revealSlot(slot, entry);
+    slot.classList.add("missed");
     } else if (state.shadow && entry.sprite) {
         showShadowSlot(slot, entry);
     }

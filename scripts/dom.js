@@ -39,6 +39,19 @@ const specialSelect = $("specialSelect");
 const newGameBtn = $("newGameBtn");
 const giveUpBtn = $("giveUpBtn");
 
+const completionModal = $("completionModal");
+const completionReason = $("completionReason");
+const completionMode = $("completionMode");
+
+const completionFound = $("completionFound");
+const completionTotal = $("completionTotal");
+const completionMissed = $("completionMissed");
+const completionPercentage = $("completionPercentage");
+const completionTime = $("completionTime");
+
+const completionCloseBtn = $("completionCloseBtn");
+const completionNewGameBtn = $("completionNewGameBtn");
+
 export {
     board,
     loading,
@@ -71,5 +84,15 @@ export {
     gameSelect,
     specialSelect,
     newGameBtn,
-    giveUpBtn
+    giveUpBtn,
+    completionModal,
+    completionReason,
+    completionMode,
+    completionFound,
+    completionTotal,
+    completionMissed,
+    completionPercentage,
+    completionTime,
+    completionCloseBtn,
+    completionNewGameBtn
 };
