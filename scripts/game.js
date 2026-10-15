@@ -446,17 +446,37 @@ function loadSavedGameIntoState(saved) {
             )
         );
 
-    state.found = new Set(
-        Array.isArray(saved.found)
-            ? saved.found.filter(
-                id => validIds.has(id)
-            )
-            : []
+    const savedFound = new Set(
+    Array.isArray(saved.found)
+        ? saved.found
+        : []
     );
 
+    state.found = new Set();
+
+    for (const entry of state.gameEntries) {
+        if (savedFound.has(entry.id)) {
+            state.found.add(entry.id);
+            continue;
+        }
+
+        // Compatibilidade com IDs antigos que incluíam a resposta.
+        const legacyPrefix =
+            `${entry.pokemonId}-${entry.category}-${entry.generation}-`;
+
+        const hasLegacyId = [...savedFound].some(
+            id =>
+                typeof id === "string" &&
+                id.startsWith(legacyPrefix)
+        );
+
+        if (hasLegacyId) {
+            state.found.add(entry.id);
+        }
+    }
+
     state.gameEntries.forEach(entry => {
-        entry.found =
-            state.found.has(entry.id);
+        entry.found = state.found.has(entry.id);
     });
 
     state.pendingMode = state.mode;

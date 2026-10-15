@@ -91,11 +91,14 @@ function makeQuizEntry(
         apiEntry.name.startsWith("minior-") &&
         !apiEntry.name.endsWith("-meteor");
 
-    const entryId = isMegaTatsugiri
-        ? `tatsugiri-mega-${sectionGeneration}-${answer}`
-        : isMiniorActive
-            ? `minior-active-${sectionGeneration}`
-            : `${apiEntry.id}-${category}-${sectionGeneration}-${answer}`;
+    const entryId =
+    isMiniorActive
+        ? `minior-active-${sectionGeneration}`
+        : isMegaTatsugiri
+            ? `tatsugiri-mega-${sectionGeneration}-${answer}`
+            : ["regional", "mega", "gmax", "other"].includes(category)
+                ? `${apiEntry.id}-${category}-${sectionGeneration}`
+                : `${apiEntry.id}-${category}-${sectionGeneration}-${answer}`;
 
     return {
         id: entryId,
