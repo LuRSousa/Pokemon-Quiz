@@ -1,4 +1,8 @@
-import { API } from "./config.js";
+import {
+    API,
+    DATABASE_VERSION,
+    gameAreaGroups
+} from "./config.js";
 import { writeCache, readCache } from "./cache.js";
 import { loadingText, progressFill } from "./dom.js";
 import { generationForId } from "./utils.js";
@@ -11,6 +15,166 @@ async function fetchJSON(url) {
     }
 
     return response.json();
+}
+
+async function fetchLocationAreaEncounters(locationAreaUrl, gameVersion) {
+    const locationArea = await fetchJSON(locationAreaUrl);
+    const encounters = [];
+
+    for (const encounter of locationArea.pokemon_encounters ?? []) {
+        const pokemonUrl = encounter.pokemon?.url;
+
+        if (!pokemonUrl) continue;
+
+        const wildMethods = new Set([
+            "walk",
+            "surf",
+            "old-rod",
+            "good-rod",
+            "super-rod",
+            "rock-smash",
+            "headbutt",
+            "dark-grass",
+            "grass-spots",
+            "cave-spots",
+            "surf-spots",
+            "super-rod-spots",
+            "yellow-flowers",
+            "purple-flowers",
+            "red-flowers",
+            "rough-terrain"
+        ]);
+
+        const hasWildEncounter = (
+            encounter.version_details ?? []
+        ).some(versionDetail => {
+            if (versionDetail.version?.name !== gameVersion) {
+                return false;
+            }
+
+            return (
+                versionDetail.encounter_details ?? []
+            ).some(detail =>
+                wildMethods.has(detail.method?.name)
+            );
+        });
+
+        if (!hasWildEncounter) continue;
+
+        encounters.push({
+            pokemon: encounter.pokemon.name,
+            pokemonUrl
+        });
+    }
+
+    return {
+        area: locationArea.name,
+        encounters
+    };
+}
+
+async function fetchLocationAreas() {
+    const areas = [];
+    let nextUrl = `${API}/location-area/?limit=1000`;
+
+    while (nextUrl) {
+        const data = await fetchJSON(nextUrl);
+
+        areas.push(...(data.results ?? []));
+        nextUrl = data.next;
+    }
+
+    return areas;
+}
+
+
+async function fetchAreasWithEncounters(gameVersion) {
+    const areas = await fetchLocationAreas();
+    const batchSize = 20;
+    const matchingAreas = [];
+
+    for (let i = 0; i < areas.length; i += batchSize) {
+        const batch = areas.slice(i, i + batchSize);
+
+        const results = await Promise.all(
+            batch.map(area =>
+                fetchLocationAreaEncounters(area.url, gameVersion)
+            )
+        );
+
+        for (const result of results) {
+            if (result.encounters.length > 0) {
+                matchingAreas.push(result);
+            }
+        }
+
+        const progress = Math.round(
+            ((i + batch.length) / areas.length) * 100
+        );
+
+        console.log(`Verificando áreas de ${gameVersion}: ${progress}%`);
+    }
+
+    return matchingAreas;
+}
+
+function groupGameAreas(gameVersion, areasWithEncounters) {
+    const configuredGroups = gameAreaGroups[gameVersion] ?? [];
+    const groupedAreaNames = new Set(
+        configuredGroups.flatMap(group => group.areas)
+    );
+
+    const areasByName = new Map(
+        areasWithEncounters.map(area => [area.area, area])
+    );
+
+    const boxes = [];
+
+    // Consolida as áreas agrupadas manualmente.
+    for (const group of configuredGroups) {
+        const groupAreas = group.areas
+            .map(areaName => areasByName.get(areaName))
+            .filter(Boolean);
+
+        if (groupAreas.length === 0) continue;
+
+        const uniquePokemon = new Map();
+
+        for (const area of groupAreas) {
+            for (const encounter of area.encounters) {
+                if (!uniquePokemon.has(encounter.pokemon)) {
+                    uniquePokemon.set(encounter.pokemon, encounter);
+                }
+            }
+        }
+
+        boxes.push({
+            name: group.name,
+            areas: groupAreas.map(area => area.area),
+            encounters: [...uniquePokemon.values()]
+        });
+    }
+
+    // Mantém as áreas não agrupadas como boxes individuais.
+    for (const area of areasWithEncounters) {
+        if (groupedAreaNames.has(area.area)) continue;
+
+        const uniquePokemon = new Map();
+
+        for (const encounter of area.encounters) {
+            if (!uniquePokemon.has(encounter.pokemon)) {
+                uniquePokemon.set(encounter.pokemon, encounter);
+            }
+        }
+
+        boxes.push({
+            name: area.area,
+            areas: [area.area],
+            encounters: [...uniquePokemon.values()]
+        });
+    }
+
+    return boxes;
 }
 
 function parseGenerationName(name) {
@@ -40,7 +204,7 @@ async function loadDatabase() {
 
     if (
         cached &&
-        cached.version === 7 &&
+        cached.version === DATABASE_VERSION &&
         cached.entries?.length
     ) {
         loadingText.textContent =
@@ -400,6 +564,14 @@ async function loadDatabase() {
                     f => f.name
                 ) || [],
 
+            gameVersions: [
+                ...new Set(
+                    (pokemon.game_indices ?? [])
+                        .map(item => item.version?.name)
+                        .filter(Boolean)
+                )
+            ],
+
             formGeneration:
                 metadata?.formGeneration ??
                 null,
@@ -422,7 +594,7 @@ async function loadDatabase() {
     );
 
     const database = {
-        version: 7,
+        version: DATABASE_VERSION,
         created: Date.now(),
         entries
     };
@@ -440,5 +612,9 @@ async function loadDatabase() {
 
 export {
     fetchJSON,
-    loadDatabase
+    loadDatabase,
+    fetchLocationAreaEncounters,
+    fetchLocationAreas,
+    fetchAreasWithEncounters,
+    groupGameAreas
 };

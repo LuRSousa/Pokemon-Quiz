@@ -284,7 +284,18 @@ function updateModeControls() {
     typeSelect.value = state.pendingType ?? "";
     inspirationSelect.value = state.pendingInspiration ?? "all";
     colorSelect.value = state.pendingColor ?? "all";
-    gameSelect.value = state.pendingGame ?? "all";
+
+    const pendingGameIsAvailable = Array.from(
+        gameSelect.options
+    ).some(option => option.value === state.pendingGame);
+
+    if (!pendingGameIsAvailable) {
+        state.pendingGame =
+            gameSelect.options[0]?.value ?? "red";
+    }
+
+    gameSelect.value = state.pendingGame;
+
     specialSelect.value = state.pendingSpecial ?? "all";
 
     generationSelect.classList.toggle("active", mode === "generation");
@@ -413,7 +424,13 @@ function loadSavedGameIntoState(saved) {
     }
 
     if (typeof saved.game === "string") {
-        state.game = saved.game;
+        const savedGameIsAvailable = Array.from(
+            gameSelect.options
+        ).some(option => option.value === saved.game);
+
+        state.game = savedGameIsAvailable
+            ? saved.game
+            : (gameSelect.options[0]?.value ?? "red");
     }
 
     if (typeof saved.special === "string") {

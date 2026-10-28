@@ -2,13 +2,13 @@ const state = {
     database: null,
     gameEntries: [],
     found: new Set(),
-    
+
     mode: "all",
     generation: 1,
     type: "normal",
     inspiration: "all",
     color: "black",
-    game: "all",
+    game: "red",
     special: "all",
 
     regional: true,
@@ -22,7 +22,7 @@ const state = {
     pendingType: "normal",
     pendingInspiration: "all",
     pendingColor: "black",
-    pendingGame: "all",
+    pendingGame: "red",
     pendingSpecial: "all",
 
     pendingRegional: true,

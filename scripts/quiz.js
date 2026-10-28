@@ -21,7 +21,8 @@ import {
 import {
     regionOrder,
     regionGenerations,
-    regionNames
+    regionNames,
+    gameAreaGroups
 } from "./config.js";
 
 const ULTRA_BEASTS = new Set([
@@ -448,6 +449,57 @@ function isGimmickEntry(entry) {
     );
 }
 
+function getGameSections(gameAreas) {
+    const sections = [];
+    const configuredGroups = gameAreaGroups[state.game] ?? [];
+    const areasByName = new Map(
+        gameAreas.map(area => [area.area, area])
+    );
+
+    const groupedAreaNames = new Set(
+        configuredGroups.flatMap(group => group.areas)
+    );
+
+    function createSection(name, areas) {
+        const pokemonNames = new Set(
+            areas.flatMap(area =>
+                area.encounters.map(encounter => encounter.pokemon)
+            )
+        );
+
+        const entries = state.gameEntries.filter(entry =>
+            pokemonNames.has(entry.apiName)
+        );
+
+        return {
+            id: `game-${normalizeName(name)}`,
+            title: name,
+            game: true,
+            entries
+        };
+    }
+
+    for (const group of configuredGroups) {
+        const areas = group.areas
+            .map(name => areasByName.get(name))
+            .filter(Boolean);
+
+        if (areas.length > 0) {
+            sections.push(createSection(group.name, areas));
+        }
+    }
+
+    for (const area of gameAreas) {
+        if (groupedAreaNames.has(area.area)) continue;
+
+        sections.push(
+            createSection(area.area, [area])
+        );
+    }
+
+    return sections;
+}
+
 function getSections() {
     const sections = [];
 
@@ -801,5 +853,6 @@ export {
     findQuizEntries,
     findMatchingEntries,
     getSections,
+    getGameSections,
     updateEntrySectionCount
 };

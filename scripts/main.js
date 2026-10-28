@@ -12,17 +12,46 @@ import {
     loading,
     board,
     answerInput,
-    answerButton
+    answerButton,
+    gameSelect
 } from "./dom.js";
 
 import { setMessage } from "./utils.js";
 
 import "./events.js";
 
+import { gameOptions } from "./config.js";
+
+function populateGameSelect(entries) {
+    const availableVersions = new Set();
+
+    for (const entry of entries) {
+        if (!Array.isArray(entry.gameVersions)) {
+            continue;
+        }
+
+        for (const version of entry.gameVersions) {
+            availableVersions.add(version);
+        }
+    }
+
+    gameSelect.replaceChildren();
+
+    for (const game of gameOptions) {
+        if (!availableVersions.has(game.value)) {
+            continue;
+        }
+
+        gameSelect.add(
+            new Option(game.label, game.value)
+        );
+    }
+
+    gameSelect.selectedIndex = 0;
+}
+
 async function initialize() {
-
     try {
-
         loading.hidden = false;
         board.innerHTML = "";
 
@@ -39,13 +68,14 @@ async function initialize() {
         state.database =
             database;
 
+        populateGameSelect(database.entries);
+
         loading.hidden = true;
 
         const saved =
             readSavedGame();
 
         if (saved) {
-
             const restored =
                 loadSavedGameIntoState(
                     saved
