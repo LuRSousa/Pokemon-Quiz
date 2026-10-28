@@ -18,31 +18,12 @@ import {
     generationForId
 } from "./utils.js";
 
-const POKEMON_COLORS = [
-    "black",
-    "blue",
-    "brown",
-    "gray",
-    "green",
-    "pink",
-    "purple",
-    "red",
-    "white",
-    "yellow"
-];
+import {
+    regionOrder,
+    regionGenerations,
+    regionNames
+} from "./config.js";
 
-const COLOR_NAMES = {
-    black: "Black",
-    blue: "Blue",
-    brown: "Brown",
-    gray: "Gray",
-    green: "Green",
-    pink: "Pink",
-    purple: "Purple",
-    red: "Red",
-    white: "White",
-    yellow: "Yellow"
-};
 const ULTRA_BEASTS = new Set([
     "nihilego",
     "buzzwole",
@@ -471,44 +452,7 @@ function getSections() {
     const sections = [];
 
     if (state.mode === "color") {
-        for (const region of [
-            "kanto",
-            "johto",
-            "hoenn",
-            "sinnoh",
-            "unova",
-            "kalos",
-            "alola",
-            "galar",
-            "hisui",
-            "paldea"
-        ]) {
-            const generationByRegion = {
-                kanto: 1,
-                johto: 2,
-                hoenn: 3,
-                sinnoh: 4,
-                unova: 5,
-                kalos: 6,
-                alola: 7,
-                galar: 8,
-                hisui: 8,
-                paldea: 9
-            };
-
-            const regionNames = {
-                kanto: "Kanto",
-                johto: "Johto",
-                hoenn: "Hoenn",
-                sinnoh: "Sinnoh",
-                unova: "Unova",
-                kalos: "Kalos",
-                alola: "Alola",
-                galar: "Galar",
-                hisui: "Hisui",
-                paldea: "Paldea"
-            };
-
+        for (const region of regionOrder) {
             const entries = state.gameEntries.filter(
                 entry =>
                     entry.color === state.color &&
@@ -525,7 +469,7 @@ function getSections() {
 
             if (entries.length > 0) {
                 sections.push({
-                    generation: generationByRegion[region],
+                    generation: regionGenerations[region],
                     region,
                     title: regionNames[region],
                     entries
@@ -661,19 +605,6 @@ function getSections() {
 
             if (category.key === "legendary") {
                 entries.sort((a, b) => {
-                    const regionOrder = [
-                        "kanto",
-                        "johto",
-                        "hoenn",
-                        "sinnoh",
-                        "unova",
-                        "kalos",
-                        "alola",
-                        "galar",
-                        "hisui",
-                        "paldea"
-                    ];
-
                     const regionA = regionOrder.indexOf(a.region);
                     const regionB = regionOrder.indexOf(b.region);
 
@@ -755,49 +686,8 @@ function getSections() {
         return sections;
     }
 
-    // Existing regional organization for All Pokémon,
-    // Generation and Type modes.
-    const regionOrder = [
-        "kanto",
-        "johto",
-        "hoenn",
-        "sinnoh",
-        "unova",
-        "kalos",
-        "alola",
-        "galar",
-        "hisui",
-        "paldea"
-    ];
-
-    const regionGeneration = {
-        kanto: 1,
-        johto: 2,
-        hoenn: 3,
-        sinnoh: 4,
-        unova: 5,
-        kalos: 6,
-        alola: 7,
-        galar: 8,
-        hisui: 8,
-        paldea: 9
-    };
-
-    const regionNames = {
-        kanto: "Kanto",
-        johto: "Johto",
-        hoenn: "Hoenn",
-        sinnoh: "Sinnoh",
-        unova: "Unova",
-        kalos: "Kalos",
-        alola: "Alola",
-        galar: "Galar",
-        hisui: "Hisui",
-        paldea: "Paldea"
-    };
-
     for (const region of regionOrder) {
-        const generation = regionGeneration[region];
+        const generation = regionGenerations[region];
 
         if (
             state.mode === "generation" &&

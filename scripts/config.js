@@ -39,6 +39,45 @@ const generationRegions = {
     9: "paldea"
 };
 
+const regionOrder = [
+    "kanto",
+    "johto",
+    "hoenn",
+    "sinnoh",
+    "unova",
+    "kalos",
+    "alola",
+    "galar",
+    "hisui",
+    "paldea"
+];
+
+const regionGenerations = {
+    kanto: 1,
+    johto: 2,
+    hoenn: 3,
+    sinnoh: 4,
+    unova: 5,
+    kalos: 6,
+    alola: 7,
+    galar: 8,
+    hisui: 8,
+    paldea: 9
+};
+
+const regionNames = {
+    kanto: "Kanto",
+    johto: "Johto",
+    hoenn: "Hoenn",
+    sinnoh: "Sinnoh",
+    unova: "Unova",
+    kalos: "Kalos",
+    alola: "Alola",
+    galar: "Galar",
+    hisui: "Hisui",
+    paldea: "Paldea"
+};
+
 const regionalDisplayPrefixes = {
     alola: "Alolan",
     galar: "Galarian",
@@ -60,13 +99,16 @@ const gmaxWords = [
     "gigantamax"
 ];
 
-export{
+export {
     API,
     CACHE_KEY,
     SAVE_KEY,
     generationNames,
     generationRanges,
     generationRegions,
+    regionOrder,
+    regionGenerations,
+    regionNames,
     regionalDisplayPrefixes,
     regionalNames,
     megaWords,
