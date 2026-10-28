@@ -119,7 +119,7 @@ function pauseTimer() {
     saveGame();
 }
 
-function resumeTimer() {    
+function resumeTimer() {
     if (!state.paused || state.finished) {
         return;
     }
@@ -467,9 +467,9 @@ function loadSavedGameIntoState(saved) {
         );
 
     const savedFound = new Set(
-    Array.isArray(saved.found)
-        ? saved.found
-        : []
+        Array.isArray(saved.found)
+            ? saved.found
+            : []
     );
 
     state.found = new Set();
@@ -534,16 +534,12 @@ function loadSavedGameIntoState(saved) {
     /*
         Restore timer.
     */
-    if (
+    state.startTime =
         typeof saved.startTime === "number" &&
-        saved.startTime > 0
-    ) {
-        state.startTime =
-            saved.startTime;
-    } else {
-        state.startTime =
-            Date.now();
-    }
+            Number.isFinite(saved.startTime) &&
+            saved.startTime > 0
+            ? saved.startTime
+            : null;
 
     renderBoard();
     updateStats();
@@ -566,6 +562,33 @@ function loadSavedGameIntoState(saved) {
         state.found.size >= state.gameEntries.length;
 
     answerButton.disabled = answerInput.disabled;
+
+    if (state.finished) {
+        stopTimer();
+
+        state.paused = false;
+
+        const elapsed =
+            Number.isFinite(state.elapsedAtEnd) &&
+                state.elapsedAtEnd >= 0
+                ? state.elapsedAtEnd
+                : state.startTime
+                    ? getElapsed()
+                    : 0;
+
+        state.elapsedAtEnd = elapsed;
+
+        timer.textContent = formatTime(elapsed);
+
+        showCompletionModal(
+            state.endReason,
+            elapsed
+        );
+
+        updatePauseButton();
+
+        return true;
+    }
 
     if (
         state.gameEntries.length > 0 &&
@@ -612,6 +635,60 @@ function getFoundCount() {
     ).length;
 }
 
+function showCompletionModal(reason, elapsed, stats = null) {
+    if (
+        !["victory", "giveup"].includes(reason) ||
+        state.gameEntries.length === 0
+    ) {
+        return;
+    }
+
+    const total = stats?.total ?? state.gameEntries.length;
+    const found = stats?.found ?? getFoundCount();
+    const missed = stats?.missed ?? total - found;
+
+    const modeLabels = {
+        all: "All Pokémon",
+        generation: "Generation",
+        type: "Type",
+        inspiration: "Inspiration",
+        color: "Color",
+        game: "Game",
+        special: "Special"
+    };
+
+    let modeText = modeLabels[state.mode] || state.mode;
+
+    if (state.mode === "generation") {
+        modeText += ` — Gen ${state.generation}`;
+    } else if (state.mode === "type") {
+        const typeName = String(state.type || "");
+
+        modeText += ` — ${typeName.charAt(0).toUpperCase() +
+            typeName.slice(1)
+            }`;
+    }
+
+    completionReason.textContent =
+        reason === "victory"
+            ? "Vitória — todos os Pokémon foram encontrados."
+            : "Desistência — partida encerrada com Give Up.";
+
+    completionMode.textContent = `Modo: ${modeText}`;
+
+    completionFound.textContent = String(found);
+    completionTotal.textContent = String(total);
+    completionMissed.textContent = String(missed);
+
+    completionPercentage.textContent =
+        `${((found / total) * 100).toFixed(1).replace(".", ",")}%`;
+
+    completionTime.textContent =
+        formatTime(Math.max(0, elapsed));
+
+    completionModal.hidden = false;
+}
+
 function finishGame(reason) {
     if (
         state.finished ||
@@ -646,44 +723,11 @@ function finishGame(reason) {
     answerInput.disabled = true;
     answerButton.disabled = true;
 
-    const modeLabels = {
-        all: "All Pokémon",
-        generation: "Generation",
-        type: "Type",
-        inspiration: "Inspiration",
-        color: "Color",
-        game: "Game",
-        special: "Special"
-    };
-
-    let modeText = modeLabels[state.mode] || state.mode;
-
-    if (state.mode === "generation") {
-        modeText += ` — Gen ${state.generation}`;
-    } else if (state.mode === "type") {
-        const typeName = String(state.type || "");
-        modeText += ` — ${
-            typeName.charAt(0).toUpperCase() +
-            typeName.slice(1)
-        }`;
-    }
-
-    completionReason.textContent =
-        reason === "victory"
-            ? "Vitória — todos os Pokémon foram encontrados."
-            : "Desistência — partida encerrada com Give Up.";
-
-    completionMode.textContent = `Modo: ${modeText}`;
-
-    completionFound.textContent = String(found);
-    completionTotal.textContent = String(total);
-    completionMissed.textContent = String(missed);
-
-    completionPercentage.textContent =
-        `${((found / total) * 100).toFixed(1).replace(".", ",")}%`;
-
-    completionTime.textContent =
-        formatTime(finalElapsed);
+    showCompletionModal(reason, finalElapsed, {
+        total,
+        found,
+        missed
+    });
 
     // Na desistência, renderBoard revelará os não encontrados
     // e aplicará a classe visual correspondente.
@@ -693,9 +737,6 @@ function finishGame(reason) {
 
     updateStats();
     updatePauseButton();
-
-    completionModal.hidden = false;
-
     saveGame();
 }
 

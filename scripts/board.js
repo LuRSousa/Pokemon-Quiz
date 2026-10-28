@@ -28,7 +28,7 @@ function createSlot(entry) {
         revealSlot(slot, entry);
     } else if (state.finished && state.endReason === "giveup") {
         revealSlot(slot, entry);
-    slot.classList.add("missed");
+        slot.classList.add("missed");
     } else if (state.shadow && entry.sprite) {
         showShadowSlot(slot, entry);
     }
@@ -124,9 +124,9 @@ const specialColumnOrders = [
 
     // 3 colunas
     [
-    ["Legendary"],
-    ["Mega Evolutions", "Ultra Beasts"],
-    ["Gigantamax", "Paradox", "Other Forms"]
+        ["Legendary"],
+        ["Mega Evolutions", "Ultra Beasts"],
+        ["Gigantamax", "Paradox", "Other Forms"]
     ],
 
     // 4 colunas
@@ -149,7 +149,8 @@ const specialColumnOrders = [
     // 6 colunas
     [
         ["Legendary"],
-        ["Mythical", "Ultra Beasts", "Paradox"],
+        ["Mythical"],
+        ["Ultra Beasts", "Paradox"],
         ["Mega Evolutions"],
         ["Gigantamax"],
         ["Other Forms"]

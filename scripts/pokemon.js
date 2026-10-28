@@ -5,21 +5,11 @@ import {
     displayName
 } from "./forms.js";
 
+import { baseSpeciesName } from "./pokemon-names.js";
 import { normalizeName } from "./utils.js";
 import { generationRegions } from "./config.js";
 import { getEntryColor } from "./colors.js";
 
-function baseSpeciesName(entry) {
-    if (entry.species) {
-        return entry.species;
-    }
-
-    if (typeof entry.name !== "string" || !entry.name) {
-        return "";
-    }
-
-    return entry.name.split("-")[0];
-}
 function getEntryGeneration(entry) {
     if (entry.region === "alola") return 7;
     if (entry.region === "galar") return 8;
@@ -92,13 +82,13 @@ function makeQuizEntry(
         !apiEntry.name.endsWith("-meteor");
 
     const entryId =
-    isMiniorActive
-        ? `minior-active-${sectionGeneration}`
-        : isMegaTatsugiri
-            ? `tatsugiri-mega-${sectionGeneration}-${answer}`
-            : ["regional", "mega", "gmax", "other"].includes(category)
-                ? `${apiEntry.id}-${category}-${sectionGeneration}`
-                : `${apiEntry.id}-${category}-${sectionGeneration}-${answer}`;
+        isMiniorActive
+            ? `minior-active-${sectionGeneration}`
+            : isMegaTatsugiri
+                ? `tatsugiri-mega-${sectionGeneration}-${answer}`
+                : ["regional", "mega", "gmax", "other"].includes(category)
+                    ? `${apiEntry.id}-${category}-${sectionGeneration}`
+                    : `${apiEntry.id}-${category}-${sectionGeneration}-${answer}`;
 
     return {
         id: entryId,

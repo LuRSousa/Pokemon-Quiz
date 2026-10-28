@@ -4,7 +4,7 @@ const state = {
     found: new Set(),
     
     mode: "all",
-    generation: "1",
+    generation: 1,
     type: "normal",
     inspiration: "all",
     color: "black",
@@ -18,7 +18,7 @@ const state = {
     shadow: false,
 
     pendingMode: "all",
-    pendingGeneration: "1",
+    pendingGeneration: 1,
     pendingType: "normal",
     pendingInspiration: "all",
     pendingColor: "black",

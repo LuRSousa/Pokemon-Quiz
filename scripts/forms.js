@@ -2,7 +2,7 @@ import { regionalNames } from "./config.js";
 
 import { prettyName } from "./utils.js";
 
-import { baseSpeciesName } from "./pokemon.js";
+import { baseSpeciesName } from "./pokemon-names.js";
 
 import { state } from "./state.js";
 
